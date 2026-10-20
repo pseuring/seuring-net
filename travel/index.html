@@ -1,0 +1,631 @@
+<meta name="robots" content="noindex, nofollow">
+<title>Der Fall Rom</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Der Fall Rom">
+<meta name="theme-color" content="#0e1317">
+<style>
+/* Layout: eine Spalte, Kopfleiste mit vier Siegeln, feste Tab-Leiste unten, alles für Daumen auf dem iPhone.
+   Look: Nachtakte aus Rom. Tinte und Pergament, Messing als Akzent, vier Elementfarben nur für die Siegel. */
+:root {
+  --ink: #0e1317;
+  --panel: #162027;
+  --panel-2: #1e2a33;
+  --line: #2c3a45;
+  --paper: #f1e9d6;
+  --muted: #a9b2b6;
+  --brass: #d0a64f;
+  --brass-dim: #8d6d27;
+  --earth: #a3b86c;
+  --air: #8ec5ea;
+  --fire: #f08a55;
+  --water: #52bdb5;
+  --ok: #8bd196;
+  --bad: #f0968d;
+  --display: "Iowan Old Style", "Baskerville", "Palatino Linotype", Georgia, serif;
+  --body: -apple-system, "SF Pro Text", system-ui, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { background: var(--ink); color: var(--paper); }
+body {
+  font-family: var(--body); font-size: 17px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 96px;
+  -webkit-text-size-adjust: 100%;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--ink); z-index: 20; }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; margin: 0; text-wrap: balance; line-height: 1.15; }
+h1 { font-size: 2rem; } h2 { font-size: 1.35rem; } h3 { font-size: 1.08rem; }
+p { margin: 0; }
+a { color: var(--brass); }
+button { font: inherit; color: inherit; }
+.wrap { max-width: 560px; margin: 0 auto; }
+.mono { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+/* Kopf */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 15; background: var(--ink); border-bottom: 1px solid var(--line);
+  margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); }
+.top-in { max-width: 560px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mini-seals { display: flex; gap: 8px; align-items: center; }
+.mini-seals svg { width: 30px; height: 30px; display: block; }
+.pts { font-family: var(--mono); font-size: 0.85rem; color: var(--brass); white-space: nowrap; }
+
+main { display: flex; flex-direction: column; gap: 16px; padding-top: 18px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.card.hero { background: var(--panel-2); border-color: var(--brass-dim); }
+.stamp { align-self: flex-start; border: 1.5px solid var(--brass); color: var(--brass); font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em; padding: 3px 8px; border-radius: 3px; transform: rotate(-2deg); text-transform: uppercase; }
+.letter { font-family: var(--display); font-size: 1.05rem; line-height: 1.55; display: flex; flex-direction: column; gap: 10px; }
+.muted { color: var(--muted); }
+.small { font-size: 0.88rem; }
+
+.btn { appearance: none; border: 0; border-radius: 12px; padding: 14px 18px; min-height: 48px; font-weight: 600; background: var(--brass); color: #1a1406; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--paper); border: 1.5px solid var(--line); }
+.btn.dim { background: var(--panel-2); color: var(--muted); border: 1px solid var(--line); }
+.btn:disabled { opacity: 0.5; }
+.btn:focus-visible, .tab:focus-visible, .chip:focus-visible, input:focus-visible { outline: 3px solid var(--air); outline-offset: 2px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > * { flex: 1 1 140px; }
+
+/* Tab-Leiste */
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; background: var(--panel); border-top: 1px solid var(--line);
+  padding: 6px max(10px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px)); }
+.tabs-in { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.tab { appearance: none; border: 0; background: transparent; padding: 8px 4px; border-radius: 10px; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 0.74rem; min-height: 52px; cursor: pointer; }
+.tab svg { width: 24px; height: 24px; }
+.tab[aria-current="page"] { color: var(--brass); background: var(--panel-2); }
+
+/* Tour */
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { appearance: none; flex: 0 0 auto; border: 1.5px solid var(--line); background: var(--panel); border-radius: 999px; padding: 9px 16px; min-height: 44px; cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--brass); color: var(--brass); background: var(--panel-2); }
+.daybox { display: flex; flex-direction: column; gap: 6px; }
+.timeline { display: flex; flex-direction: column; gap: 10px; }
+.stop { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; }
+.stop .t { font-family: var(--mono); font-size: 0.82rem; color: var(--brass); padding-top: 14px; text-align: right; }
+.stop .body { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.stop .body.done { border-color: #3c5b45; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted); }
+.tag.earth { color: var(--earth); border-color: var(--earth); } .tag.air { color: var(--air); border-color: var(--air); }
+.tag.fire { color: var(--fire); border-color: var(--fire); } .tag.water { color: var(--water); border-color: var(--water); }
+.tag.finale { color: var(--brass); border-color: var(--brass); } .tag.ok { color: var(--ok); border-color: var(--ok); }
+.stop-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.stop-actions .btn { min-height: 44px; padding: 10px 14px; font-size: 0.95rem; flex: 1 1 130px; }
+
+/* Rätsel */
+.back { align-self: flex-start; }
+.step { display: flex; flex-direction: column; gap: 10px; }
+.q { font-size: 1.1rem; }
+input[type="text"] { width: 100%; font-size: 16px; padding: 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--ink); color: var(--paper); font-family: var(--body); }
+.msg { min-height: 1.4em; font-size: 0.95rem; }
+.msg.bad { color: var(--bad); } .msg.ok { color: var(--ok); }
+.hint { background: var(--ink); border: 1px dashed var(--brass-dim); border-radius: 10px; padding: 10px 12px; font-size: 0.95rem; }
+.reveal { background: var(--ink); border-left: 3px solid var(--ok); padding: 10px 12px; border-radius: 4px 10px 10px 4px; display: flex; flex-direction: column; gap: 6px; }
+.seal-win { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 10px 0; }
+.seal-win svg { width: 120px; height: 120px; animation: pop 0.6s ease-out both; }
+@keyframes pop { from { transform: scale(0.4) rotate(-12deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .seal-win svg { animation: none; } }
+.locked { opacity: 0.85; }
+
+/* Siegel-Seite */
+.seal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.seal-cell { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; min-width: 0; }
+.seal-cell svg { width: 84px; height: 84px; }
+.notes { display: flex; flex-direction: column; gap: 10px; }
+.note { border-left: 3px solid var(--brass-dim); padding-left: 12px; }
+.note b { font-family: var(--display); font-weight: 600; }
+
+/* Eltern */
+details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+summary { cursor: pointer; font-weight: 600; min-height: 32px; display: flex; align-items: center; }
+details[open] summary { margin-bottom: 8px; }
+ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 6px; }
+.kv { display: grid; grid-template-columns: 1fr; gap: 2px; }
+.kv + .kv { margin-top: 8px; }
+.kv b { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brass); font-weight: 600; }
+.warn { border: 1px solid var(--brass-dim); background: var(--panel-2); border-radius: 10px; padding: 10px 12px; font-size: 0.92rem; }
+
+.hd { display: flex; gap: 10px; align-items: center; }
+.badge { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); color: var(--brass); display: grid; place-items: center; }
+.badge .ico { width: 28px; height: 28px; }
+.scene { margin: -4px -4px 0; }
+.scenesvg, .routesvg { display: block; width: 100%; height: auto; }
+.bubble { display: flex; gap: 12px; align-items: flex-start; background: var(--panel-2); border: 1px solid var(--brass-dim); border-radius: 14px 14px 14px 4px; padding: 12px 14px; font-size: 0.95rem; }
+.bubble b { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brass); }
+.fist { flex: 0 0 auto; width: 34px; height: 34px; color: var(--brass); }
+.fist svg { width: 100%; height: 100%; }
+.legend { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.lg { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.8rem; color: var(--muted); }
+.lg svg { width: 100%; max-width: 64px; height: auto; }
+.viz { display: block; width: 100%; height: auto; background: var(--ink); border: 1px solid var(--line); border-radius: 10px; }
+</style>
+
+<div class="top"><div class="top-in" id="top"></div></div>
+<div class="wrap"><main id="app" aria-live="polite"></main></div>
+<nav class="tabs" aria-label="Bereiche"><div class="tabs-in" id="tabs"></div></nav>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Inhalt ---------- */
+  var ELEM = {
+    earth: { name: "Erde", color: "var(--earth)", up: false, bar: true },
+    water: { name: "Wasser", color: "var(--water)", up: false, bar: false },
+    fire: { name: "Feuer", color: "var(--fire)", up: true, bar: false },
+    air: { name: "Luft", color: "var(--air)", up: true, bar: true }
+  };
+  var ORDER = ["earth", "water", "fire", "air"];
+
+  var DAYS = [
+    { id: "so", label: "So 25.10.", title: "Anreise und Auftrag", role: "Navigator: du führst Papa zum richtigen Gleis und zur Unterkunft.", stops: [
+      { id: "s-zug", time: "13:57", name: "Zug nach Rom", where: "Rovereto, Frecciarossa 8519, Ankunft Roma Termini 18:10", maps: "Stazione di Rovereto", note: "Dein Job als Navigator: Gleis auf der Anzeigetafel finden und im Zug den richtigen Wagen. Die Tickets hat Papa im Handy." },
+      { id: "s-hotel", time: "18:30", name: "Einchecken", where: "Napoleone Suite, Via Napoleone III 28", maps: "Via Napoleone III 28, Roma", note: "Gleich beim Bahnhof. Ausweis bereithalten." },
+      { id: "s-dossier", time: "19:15", name: "Das Dossier", where: "Spaziergang zum Kolosseum bei Nacht", maps: "Colosseo, Roma", kind: "dossier", note: "Hier startet der Fall. Check unterwegs das Dossier auf der Startseite. Das Kolosseum gibt's heute nur zum Angucken, gelöst wird ab morgen." },
+      { id: "s-essen", time: "20:00", name: "Abendessen", where: "Ai Tre Scalini, Via Panisperna 251", maps: "Ai Tre Scalini Via Panisperna 251 Roma", note: "Kassenwart: Du rechnest die Rechnung nach, Papa darf nicht schummeln. Frage des Abends: Was war heute das Schrägste?" }
+    ]},
+    { id: "mo", label: "Mo 26.10.", title: "Erde und Wasser", role: "Fotograf: fünf Bilder zum Thema Ruine trifft Alltag.", stops: [
+      { id: "m-moses", time: "09:30", name: "Moses von Michelangelo", where: "San Pietro in Vincoli", maps: "San Pietro in Vincoli Roma", note: "Eintritt frei. Aufwärmrätsel.", puzzle: {
+        title: "Der Mann mit dem Auffälligen", intro: "Ein Marmor-Typ sitzt hier seit über 500 Jahren rum. Guck ihm mal auf den Kopf.",
+        steps: [{ id: "moses1", q: "Moses hat was Seltsames auf dem Kopf. Was?", accept: ["horn", "hoerner", "hörner", "horner"], hints: ["Schau auf seine Stirn, ganz oben.", "Zwei kleine spitze Dinger, wie bei einem Stier."], reveal: "Hörner. Eine alte lateinische Bibelübersetzung machte aus einem Wort für strahlend das Wort gehörnt (so wird es meist erklärt). Michelangelo hat es einfach übernommen." }] } },
+      { id: "m-kolo", time: "10:00", name: "Kolosseum von außen", where: "einmal rundherum, dazu der Konstantinsbogen", maps: "Colosseo Roma", note: "Innen war alles ausverkauft, nervig. Von außen sieht es trotzdem krass aus.", puzzle: {
+        title: "Bögen zählen", intro: "Das größte Stadion der Antike. Die Außenwand hat ein Muster, das du zählen kannst.",
+        steps: [{ id: "kolo1", viz: "arch0", q: "Zähle von unten nach oben die Reihen mit Bögen (ohne die geschlossene Wand ganz oben). Wie viele Reihen sind es?", accept: ["3", "drei"], hints: ["Zähle nur die Reihen mit Löchern.", "Es sind weniger als vier."], reveal: "Drei Reihen mit je 80 Bögen, darüber eine geschlossene Wand mit kleinen Fenstern. Die Säulenformen wechseln von unten nach oben von schlicht zu verziert." },
+          { id: "kolo2", viz: "arch80", q: "Jede der drei Reihen hat 80 Bögen. Wie viele Bögen sind das zusammen?", accept: ["240"], hints: ["80 + 80 + 80.", "3 mal 80."], reveal: "240 Bögen. 76 der Bögen im Erdgeschoss waren nummerierte Eingänge für das Publikum, damit sich Zehntausende schnell verteilen konnten." }] } },
+      { id: "m-forum", time: "10:30", name: "Forum Romanum und Palatin", where: "Eingang Largo della Salara Vecchia", maps: "Foro Romano Largo della Salara Vecchia Roma", note: "Eltern kaufen vorher den Forum Pass Super. Kapitelfrage: Wo hat Rom entschieden?", puzzle: {
+        title: "Beute vom Titusbogen", intro: "Der Titusbogen feiert einen Sieg. Auf einem Relief tragen Soldaten ihre Beute durch die Stadt.",
+        steps: [{ id: "forum1", q: "Die Soldaten tragen einen großen Leuchter mit sieben Armen aus einem eroberten Tempel. Wie heißt er?", accept: ["menora", "menorah", "leuchter"], hints: ["Er gehört zum jüdischen Glauben.", "Der Name beginnt mit M."], reveal: "Die Menora aus dem Tempel in Jerusalem. Rom eroberte die Stadt im Jahr 70 nach Christus. Der Bogen ist Siegerpropaganda in Stein." },
+          { id: "forum2", viz: "tl|70|2026|Sieg über Jerusalem|Heute", q: "Der Sieg über Jerusalem war im Jahr 70 nach Christus. Wie viele Jahre ist das bis 2026 her?", accept: ["1956", "1 956"], hints: ["Rechne 2026 minus 70.", "Erst 2026 minus 100, dann plus 30."], reveal: "1956 Jahre. Der Bogen selbst wurde nach dem Tod von Titus gebaut, aber er erinnert an dieses Ereignis." }] } },
+      { id: "m-essen1", time: "13:30", name: "Mittagessen", where: "Pizza al taglio in der Nähe, Via di San Giovanni in Laterano", maps: "Luzzi Via di San Giovanni in Laterano 88 Roma", note: "Kassenwart: Tagesbudget aus dem Umschlag, du rechnest ab." },
+      { id: "m-metro", time: "15:45", name: "Metro zur Piazza del Popolo", where: "Metro A ab Termini Richtung Battistini bis Flaminio", maps: "Flaminio metro Roma", note: "Navigator: Linie A, Haltestelle Flaminio. Danach durch das Tor auf den Platz." },
+      { id: "m-popolo", time: "16:00", name: "Santa Maria del Popolo", where: "Piazza del Popolo, Chigi-Kapelle", maps: "Santa Maria del Popolo Roma", seal: "earth", note: "Die Kirche öffnet laut Quelle nachmittags um 16 Uhr. Leise sein, Schultern und Knie bedecken.", puzzle: {
+        title: "Siegel der Erde", intro: "Ort Nummer eins. Eine Kapelle voller versteckter Zeichen. Such die Seitenkapelle mit den zwei Bernini-Statuen.",
+        steps: [
+          { id: "pop1", q: "Die Chigi-Kapelle hat ein berühmter Maler entworfen. Er liegt auch im Pantheon begraben. Wie heißt er?", accept: ["raffael", "raphael", "raffaello"], hints: ["Auch eine der Ninja-Turtles heißt so.", "Er hat die Schule von Athen gemalt."], reveal: "Raffael. Er entwarf die Kapelle für den reichen Bankier Agostino Chigi." },
+          { id: "pop2", q: "Bernini hat in der Kapelle zwei Propheten aus Stein gemeißelt. Einer sitzt zwischen Löwen. Wie heißt er?", accept: ["daniel"], hints: ["Seine Geschichte heißt Daniel in der Löwengrube.", "Der Name hat sechs Buchstaben."], reveal: "Daniel, und gegenüber steht Habakuk mit einem Engel. Beide Statuen sind von Bernini. Das Zeichen der Erde ist ein Dreieck mit der Spitze nach unten und einem Querstrich." }
+        ], outro: "Siegel der Erde gesichert." } },
+      { id: "m-navona", time: "17:30", name: "Piazza Navona", where: "Vier-Ströme-Brunnen von Bernini", maps: "Fontana dei Quattro Fiumi Roma", seal: "water", note: "Zu Fuß von der Piazza del Popolo, rund 25 Minuten. Eis unterwegs erlaubt.", puzzle: {
+        title: "Siegel des Wassers", intro: "Ort Nummer zwei. Vier Flussgötter hocken um einen Obelisken. Einer versteckt sein Gesicht.",
+        steps: [
+          { id: "nav1", viz: "rivers", q: "Die vier Flüsse sind Nil, Ganges, Donau und Rio de la Plata. Einer hält sich ein Tuch vor den Kopf. Welcher?", accept: ["nil"], hints: ["Er steht für den Fluss, dessen Quelle damals niemand kannte.", "Er fließt in Afrika."], reveal: "Der Nil. Seine Quelle war zur Bauzeit unbekannt, deshalb ist sein Kopf verhüllt (so wird es meist erklärt)." },
+          { id: "nav2", q: "Oben auf dem Obelisken, rund 16 Meter hoch, sitzt ein Vogel. Welcher?", accept: ["taube", "dove"], hints: ["Er ist ein Friedenssymbol.", "Er steht auch im Wappen der Familie des Papstes, der den Brunnen bestellte."], reveal: "Eine Taube. Das Zeichen des Wassers ist ein Dreieck mit der Spitze nach unten, ohne Querstrich." },
+          { id: "nav3", viz: "tl|1651|2026|Brunnen fertig|Heute", q: "Bernini hat den Brunnen 1651 fertiggestellt. Wie alt ist er heute (2026)?", accept: ["375"], hints: ["Rechne 2026 minus 1651.", "2026 minus 1600 ist 426, dann noch 51 abziehen."], reveal: "375 Jahre. Der Brunnen läuft also seit gut dreieinhalb Jahrhunderten." }
+        ], outro: "Siegel des Wassers gesichert." } },
+      { id: "m-pantheon", time: "18:15", name: "Pantheon", where: "Piazza della Rotonda", maps: "Pantheon Roma", note: "Letzter Einlass laut Quelle 18:30. Kinder unter 18 gratis, Erwachsene wenige Euro.", puzzle: {
+        title: "Das Grab des Meisters", intro: "Fast 2000 Jahre alt und steht immer noch. Hier liegt der Maler aus der ersten Kirche.",
+        steps: [
+          { id: "pan1", viz: "dome", q: "Die Öffnung ganz oben in der Kuppel lässt Licht und Regen herein. Wie heißt sie?", accept: ["oculus", "auge"], hints: ["Das lateinische Wort bedeutet Auge.", "Es beginnt mit O."], reveal: "Das Oculus misst gut acht Meter. Der Boden neigt sich leicht und hat Abflusslöcher, damit der Regen abläuft." },
+          { id: "pan2", viz: "tl|1483|1520|Raffael geboren|gestorben", q: "Such Raffaels Grab: Über dem Sarkophag steht eine Marienstatue. Raffael lebte von 1483 bis 1520. Wie alt wurde er?", accept: ["37"], hints: ["Rechne 1520 minus 1483.", "Es sind mehr als 35 und weniger als 40 Jahre."], reveal: "37 Jahre. Er starb 1520, oft heißt es, genau an seinem Geburtstag. Sein Grab im Pantheon ist bis heute ein Pilgerort." }
+        ] } },
+      { id: "m-trevi", time: "19:00", name: "Trevi-Brunnen", where: "Fontana di Trevi", maps: "Fontana di Trevi Roma", note: "Münze mit der rechten Hand über die linke Schulter. Nicht länger als 15 Minuten bleiben, es ist voll." },
+      { id: "m-essen2", time: "19:45", name: "Abendessen", where: "Osteria dell'Ingegno oder Armando al Pantheon", maps: "Osteria dell'Ingegno Piazza di Pietra Roma", note: "Armando vorher reservieren." }
+    ]},
+    { id: "di", label: "Di 27.10.", title: "Feuer, Luft und das Versteck", role: "Navigator: Metro A bis Ottaviano, dann zu Fuß zum Petersplatz.", stops: [
+      { id: "d-vittoria", time: "07:30", name: "Santa Maria della Vittoria", where: "Via XX Settembre 17", maps: "Santa Maria della Vittoria Via XX Settembre 17 Roma", seal: "fire", note: "Rund 15 Minuten zu Fuß vom Hotel. Öffnungszeiten laut Quelle 7 bis 12 Uhr. Leise sein.", puzzle: {
+        title: "Siegel des Feuers", intro: "Ort Nummer drei. In der linken Seitenkapelle steht eine Marmor-Szene wie auf einer Bühne, mit goldenen Strahlen.",
+        steps: [
+          { id: "vit1", q: "Ein lächelnder Engel hält etwas Spitzes in der Hand und zielt auf das Herz der Frau. Was ist es?", accept: ["pfeil", "speer", "lanze", "spear", "arrow"], hints: ["Es ist golden.", "Man schießt oder wirft es."], reveal: "Ein goldener Pfeil, auch Speer genannt. Er steht für die göttliche Liebe, die die Heilige trifft." },
+          { id: "vit2", q: "Wie heißt die Heilige, deren Verzückung Bernini hier dargestellt hat?", accept: ["teresa", "theresa", "therese", "teresia"], hints: ["Sie kam aus Ávila in Spanien.", "Der Name beginnt mit T und endet auf a."], reveal: "Teresa von Ávila. Bernini schuf die Gruppe um 1650. Das Zeichen des Feuers ist ein Dreieck mit der Spitze nach oben." },
+          { id: "vit3", viz: "tl|1647|1652|Bernini beginnt|fertig", q: "Bernini arbeitete von 1647 bis 1652 an dieser Szene. Wie viele Jahre waren das?", accept: ["5", "funf", "fuenf"], hints: ["1652 minus 1647.", "Es sind weniger als zehn Jahre."], reveal: "Fünf Jahre für eine einzige Marmorgruppe." }
+        ], outro: "Siegel des Feuers gesichert." } },
+      { id: "d-metro", time: "08:15", name: "Metro zum Vatikan", where: "Metro A ab Repubblica Richtung Battistini bis Ottaviano", maps: "Ottaviano metro Roma", note: "Navigator: Repubblica Teatro dell'Opera einsteigen, Ottaviano aussteigen, dann Richtung Petersplatz." },
+      { id: "d-platz", time: "09:00", name: "Petersplatz", where: "Zwischen Obelisk und Petersdom", maps: "Piazza San Pietro Roma", seal: "air", note: "Sicherheitskontrolle beim Petersdom, kleiner Rucksack.", puzzle: {
+        title: "Siegel der Luft", intro: "Ort Nummer vier. Der Platz ist ein riesiges Oval, und im Boden stecken Markierungen für die Winde.",
+        steps: [
+          { id: "luft1", viz: "compass", q: "Rund um den Obelisken liegen 16 weiße Marmorplatten im Pflaster, jede mit einem Windnamen. Auf einer steht Ponente. Welche Himmelsrichtung ist das?", accept: ["west", "westen"], hints: ["Ponente ist italienisch für Sonnenuntergang.", "Wo geht die Sonne unter?"], reveal: "Westen. Die 16 Platten bilden zusammen eine Windrose um den Obelisken." },
+          { id: "luft2", q: "Der Obelisk in der Mitte ist älter als der Petersdom. Aus welchem Land stammt er?", accept: ["agypten", "aegypten", "ägypten", "egypt"], hints: ["Dort stehen die Pyramiden.", "Das Land liegt am Nil."], reveal: "Ägypten. Er kam unter Kaiser Caligula nach Rom und wurde 1586 auf diesem Platz aufgestellt. Das Zeichen der Luft ist ein Dreieck mit der Spitze nach oben und einem Querstrich." },
+          { id: "luft3", q: "Die Kolonnaden um den Platz haben 284 Säulen. Sie stehen immer vier nebeneinander in einer Reihe. Wie viele Säulenreihen sind es?", accept: ["71"], hints: ["Teile 284 durch 4.", "Erst 280 durch 4, dann noch 4 durch 4."], reveal: "71 Reihen. Oben auf den Kolonnaden stehen 140 Heilige als Statuen." }
+        ], outro: "Siegel der Luft gesichert." } },
+      { id: "d-dom", time: "09:30", name: "Petersdom", where: "Eintritt frei, Schultern und Knie bedeckt", maps: "Basilica di San Pietro Roma", note: "Gleich rechts am Eingang steht die Pietà. Danach die Markierungen im Boden suchen, die Länge anderer Kirchen zeigen.", puzzle: {
+        title: "Die Pietà", intro: "Ein junger Künstler, ein Block Marmor, eine Mutter mit ihrem Sohn.",
+        steps: [{ id: "dom1", q: "Wer hat die Pietà geschaffen, als er noch als junger Mann?", accept: ["michelangelo"], hints: ["Er hat auch den Moses gemacht.", "Er malte die Sixtinische Decke."], reveal: "Michelangelo. Er ist der einzige Künstler, der ein Werk hier mit seinem Namen signiert hat, auf dem Band über der Brust (so wird es erzählt)." },
+          { id: "dom2", viz: "tl|1475|1499|Michelangelo geboren|Pietà fertig", q: "Michelangelo wurde 1475 geboren und vollendete die Pietà 1499. Wie alt war er?", accept: ["24"], hints: ["1499 minus 1475.", "Er war noch keine 25."], reveal: "24 Jahre. Mit 24 hat er ein Meisterwerk gemacht, das bis heute Millionen sehen." }] } },
+      { id: "d-burg", time: "11:00", name: "Engelsburg", where: "Castel Sant'Angelo, zu Fuß über die Via della Conciliazione", maps: "Castel Sant'Angelo Roma", finale: true, note: "Öffnet dienstags laut Quelle 9 bis 19:30. Erwachsene zahlen Eintritt, Kinder unter 18 laut Quelle frei.", puzzle: {
+        title: "Das Versteck", intro: "Alle vier Siegel zeigen auf eine Burg am Fluss. Früher Grabmal für einen Kaiser, später Festung der Päpste mit geheimem Fluchtweg. Finale!",
+        steps: [
+          { id: "fin1", q: "Oben auf der Burg steht ein Engel mit Schwert. Welcher Erzengel ist es?", accept: ["michael"], hints: ["Er ist der Anführer der Engel.", "Sein Name endet auf el."], reveal: "Der Erzengel Michael. Der Legende nach sah Papst Gregor der Große hier im Jahr 590 den Engel sein Schwert einstecken, und die Pest endete. Daher der Name Engelsburg." },
+          { id: "fin2", q: "Ein befestigter Gang verbindet die Burg mit dem Vatikan. Er heißt Passetto di ... Wie geht der Name weiter?", accept: ["borgo"], hints: ["Borgo ist der Name des alten Viertels um den Vatikan.", "Es sind fünf Buchstaben."], reveal: "Passetto di Borgo. Papst Clemens VII. floh 1527 auf diesem Weg vor plündernden Soldaten." },
+          { id: "fin3", viz: "walk", q: "Der Gang ist rund 800 Meter lang. Wie viele Minuten brauchst du dafür zu Fuß bei 4 km/h?", accept: ["12"], hints: ["4 km/h sind 4000 Meter in 60 Minuten.", "Das sind rund 67 Meter pro Minute."], reveal: "12 Minuten. Der Papst musste 1527 um sein Leben rennen, ihr könnt es gemütlicher angehen. Fall gelöst." }
+        ], outro: "Das Versteck ist gefunden." } },
+      { id: "d-essen1", time: "12:30", name: "Mittagessen", where: "Pizzarium Bonci, Via della Meloria 43", maps: "Pizzarium Bonci Via della Meloria 43 Roma", note: "Pizza al taglio, günstig und sehr gut. Kassenwart ist heute dran." },
+      { id: "d-trast", time: "15:30", name: "Trastevere", where: "Gassen, Santa Maria in Trastevere, Gianicolo", maps: "Santa Maria in Trastevere Roma", note: "Fotograf: Fünf Bilder zum Thema Licht und Schatten. Eis oder Grattachecca um 16:30." },
+      { id: "d-essen2", time: "19:30", name: "Abendessen", where: "Da Enzo al 29 oder Tonnarello", maps: "Da Enzo al 29 Via dei Vascellari 29 Roma", note: "Da Enzo nimmt keine Reservierung, Schlange ab 19 Uhr." }
+    ]},
+    { id: "mi", label: "Mi 28.10.", title: "Abreise", role: "Navigator: Gleis in Rom, Gleis in Bologna, Gleis in Innsbruck.", stops: [
+      { id: "w-barb", time: "08:30", name: "Epilog am Tritonbrunnen", where: "Piazza Barberini, etwa 15 bis 20 Minuten zu Fuß von Termini", maps: "Fontana del Tritone Roma", note: "Freiwillig. Zurück in der Unterkunft um 9:45, Check-out spätestens 10:30.", puzzle: {
+        title: "Nachtrag", intro: "Noch ein Brunnen, zwei Bonusfragen zum Abschluss.",
+        steps: [{ id: "bar1", q: "Welcher Künstler hat den Tritonbrunnen geschaffen? Du kennst ihn von drei Stationen.", accept: ["bernini"], hints: ["Er hat auch die Verzückung der Teresa gemacht.", "Er hat auch den Vier-Ströme-Brunnen gebaut."], reveal: "Gian Lorenzo Bernini. Der Brunnen entstand 1642 bis 1643. Du bist im Grunde Berninis Rom abgelaufen." },
+          { id: "bar2", viz: "tl|1643|2026|Brunnen fertig|Heute", q: "Der Brunnen wurde 1643 fertig. Wie viele Jahre sind das bis 2026?", accept: ["383"], hints: ["2026 minus 1643.", "2026 minus 1600 ist 426, dann 43 abziehen."], reveal: "383 Jahre. Rechenprofi." }] } },
+      { id: "w-check", time: "10:30", name: "Auschecken", where: "Napoleone Suite", maps: "Via Napoleone III 28, Roma", note: "Proviant für den Zug: Suppli oder Pizza al taglio." },
+      { id: "w-zug1", time: "11:20", name: "Rom nach Bologna", where: "Frecciarossa 9628, Ankunft Bologna Centrale 13:23", maps: "Roma Termini", note: "Am Bahnhof um 10:50 sein. Navigator: Gleis auf der Tafel suchen." },
+      { id: "w-zug2", time: "13:52", name: "Bologna nach Innsbruck", where: "Railjet 82 über Verona und Brenner, Ankunft Innsbruck Hbf 18:32", maps: "Bologna Centrale", note: "Nur 29 Minuten Umstieg in Bologna. Gleis des RJ 82 sofort auf der Tafel suchen und direkt hingehen." }
+    ]}
+  ];
+
+  var STEPS = {}, STOPS = {};
+  DAYS.forEach(function (d) { d.stops.forEach(function (s) { STOPS[s.id] = s; if (s.puzzle) s.puzzle.steps.forEach(function (st) { STEPS[st.id] = st; }); }); });
+
+  var PARENT = [
+    { day: "So 25.10.", items: [
+      ["Zug", "Frecciarossa 8519: Rovereto ab 13:57, Roma Termini an 18:10. Gegen 13:00 in Torbole losfahren."],
+      ["Unterkunft", "Check-in ab 11:30 bis 23:30. Ankunftszeit vorher der Unterkunft mitteilen. Ausweis und Kreditkarte mitbringen."],
+      ["Booking-Daten", "Buchungsnummern und Sitzplätze stehen bewusst nicht in dieser App. Sie liegen im Rom-Plan und in den PDFs."]
+    ]},
+    { day: "Mo 26.10.", items: [
+      ["Noch kaufen", "Forum Pass Super für Forum und Palatin, offene Datumsangabe, 18 Euro pro Erwachsenem laut Ticketseite am 20.10. Kolosseum innen war ausverkauft."],
+      ["Santa Maria del Popolo", "Laut einer Reisequelle Mo bis Sa 7 bis 12 und 16 bis 19 Uhr. Nicht amtlich geprüft."],
+      ["Pantheon", "Laut Quellen täglich 9 bis 19 Uhr, letzter Einlass 18:30. Eintritt 5 bis 7 Euro je nach Quelle, unter 18 frei."],
+      ["Route", "Metro A Flaminio, dann Fußweg zur Piazza Navona, danach Pantheon und Trevi."]
+    ]},
+    { day: "Di 27.10.", items: [
+      ["Vatikanische Museen", "Am 20.10. nicht buchbar. tickets.museivaticani.va bis zur Abreise erneut prüfen. Falls ein Slot um 8 bis 9 Uhr frei wird, Museen zuerst."],
+      ["Santa Maria della Vittoria", "Die Kirchenseite nennt keine Zeiten. Laut Reisequelle 7 bis 12 und 15:30 bis 19 Uhr. Telefon der Kirche laut Turismo Roma: 06 42740571."],
+      ["Engelsburg", "Laut Reisequelle Di bis So 9 bis 19:30, letzter Einlass 18:30, montags zu. Erwachsene 18 Euro, unter 18 frei. Nicht amtlich geprüft."],
+      ["Passetto di Borgo", "Führungen soll es geben. Die Angaben stammen aus 2024 und sind unsicher. Nicht eingeplant."]
+    ]},
+    { day: "Mi 28.10.", items: [
+      ["Zug", "Frecciarossa 9628 ab Roma Termini 11:20, Bologna an 13:23. Railjet 82 ab Bologna 13:52, Innsbruck an 18:32. Nur 29 Minuten Umstieg. Tickets ausdrucken oder in der ÖBB-App."],
+      ["Check-out", "Bis 10:30."]
+    ]}
+  ];
+
+  /* ---------- Zustand ---------- */
+  var KEY = "fall-rom-v1";
+  var mem = null;
+  function load() { try { var r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch (e) {} return mem; }
+  function save() { var o = { opened: S.opened, done: S.done, pts: S.pts, notes: S.notes, day: S.day, hints: S.hints }; mem = o; try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
+  function pickDay() {
+    var n = new Date(), m = n.getMonth(), d = n.getDate();
+    if (m === 9) { if (d === 26) return "mo"; if (d === 27) return "di"; if (d === 28) return "mi"; }
+    return "so";
+  }
+  var saved = load() || {};
+  var S = {
+    tab: "fall", view: null, resetAsk: false, msg: {}, draft: {}, revealAns: {},
+    opened: !!saved.opened, done: saved.done || {}, pts: saved.pts || {}, notes: saved.notes || [], hints: saved.hints || {},
+    day: saved.day || pickDay(), openStop: null
+  };
+
+  /* ---------- Hilfen ---------- */
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function norm(s) { return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ß/g, "ss").replace(/ae/g, "a").replace(/oe/g, "o").replace(/ue/g, "u").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim(); }
+  function matches(input, accept) {
+    var n = norm(input); if (!n) return false;
+    var words = n.split(" ");
+    return accept.some(function (a) { var x = norm(a); return /^\d+$/.test(x) ? words.indexOf(x) >= 0 : n.indexOf(x) >= 0; });
+  }
+  function stopDone(stop) { return !stop.puzzle || stop.puzzle.steps.every(function (st) { return !!S.done[st.id]; }); }
+  function sealsHeld() { return ORDER.filter(function (k) { var st = sealStop(k); return st && stopDone(st); }); }
+  function sealStop(k) { var r = null; DAYS.forEach(function (d) { d.stops.forEach(function (s) { if (s.seal === k) r = s; }); }); return r; }
+  function finaleStop() { return STOPS["d-burg"]; }
+  function total() { var t = 0; Object.keys(S.pts).forEach(function (k) { t += S.pts[k]; }); return t; }
+  function maxPts() { return Object.keys(STEPS).length * 3; }
+  function nextStop() {
+    var res = null;
+    DAYS.forEach(function (d) { d.stops.forEach(function (s) { if (!res && s.puzzle && !stopDone(s)) { if (s.finale && sealsHeld().length < 4) return; res = { day: d, stop: s }; } }); });
+    return res;
+  }
+  function mapsUrl(q) { return "https://maps.apple.com/?q=" + encodeURIComponent(q); }
+
+  var IC = {
+    train: '<path d="M14 8h20a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z"/><path d="M10 22h28M17 34l-4 6M31 34l4 6"/><circle cx="17" cy="28" r="1.6"/><circle cx="31" cy="28" r="1.6"/>',
+    bed: '<path d="M6 38V12M6 30h36v8M42 30v-6a6 6 0 0 0-6-6H22v12"/><circle cx="14" cy="23" r="4"/>',
+    env: '<path d="M6 12h36v26H6zM6 14l18 14 18-14"/>',
+    food: '<path d="M8 12c10-6 22-6 32 0L24 42z"/><circle cx="20" cy="20" r="2"/><circle cx="28" cy="22" r="2"/><circle cx="24" cy="30" r="2"/>',
+    moses: '<path d="M16 40V24a8 8 0 0 1 16 0v16M16 18c-4-2-6-6-4-10M32 18c4-2 6-6 4-10M20 28h.01M28 28h.01M20 34c2 2 6 2 8 0"/>',
+    colo: '<path d="M6 40V16c0-4 8-8 18-8s18 4 18 8v24M6 40h36M12 40V26a3 3 0 0 1 6 0v14M21 40V26a3 3 0 0 1 6 0v14M30 40V26a3 3 0 0 1 6 0v14"/>',
+    forum: '<path d="M6 12h36M10 12v26M20 12v26M28 12v26M38 12v26M6 40h36"/>',
+    metro: '<circle cx="24" cy="24" r="17"/><path d="M15 32V16l9 10 9-10v16"/>',
+    church: '<path d="M24 4v8M20 8h8M10 40V22l14-10 14 10v18M4 40h40M20 40v-10a4 4 0 0 1 8 0v10"/>',
+    fountain: '<path d="M24 6c-4 6-4 10 0 14 4-4 4-8 0-14zM10 30h28M14 30c0 8 20 8 20 0M24 20v10M8 42h32"/>',
+    dome: '<path d="M8 26a16 16 0 0 1 32 0M6 26h36M10 26v14M18 26v14M30 26v14M38 26v14M6 40h36"/><circle cx="24" cy="14" r="2"/>',
+    obelisk: '<path d="M24 4l4 8-2 28h-4l-2-28zM12 42h24"/>',
+    castle: '<path d="M8 40V18h6v4h4v-4h4v4h4v-4h4v4h4v-4h6v22zM20 40v-8a4 4 0 0 1 8 0v8M24 4v8M20 8h8"/>',
+    cam: '<path d="M6 16h8l3-4h14l3 4h8v22H6z"/><circle cx="24" cy="27" r="7"/>',
+    bag: '<path d="M8 16h32v22H8zM18 16v-4h12v4M8 26h32"/>'
+  };
+  var ICBY = {"s-zug":"train","s-hotel":"bed","s-dossier":"env","s-essen":"food","m-moses":"moses","m-kolo":"colo","m-forum":"forum","m-essen1":"food","m-metro":"metro","m-popolo":"church","m-navona":"fountain","m-pantheon":"dome","m-trevi":"fountain","m-essen2":"food","d-vittoria":"church","d-metro":"metro","d-platz":"obelisk","d-dom":"dome","d-burg":"castle","d-essen1":"food","d-trast":"cam","d-essen2":"food","w-barb":"fountain","w-check":"bag","w-zug1":"train","w-zug2":"train"};
+  function ico(k) { return '<svg class="ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (IC[k] || IC.env) + "</svg>"; }
+  function scene(s) {
+    var col = s.seal ? ELEM[s.seal].color : "var(--brass)";
+    return '<svg class="scenesvg" viewBox="0 0 320 130" role="img" aria-label="Illustration: ' + esc(s.name) + '"><rect width="320" height="130" rx="12" fill="var(--ink)"/>' +
+      '<g fill="var(--muted)" opacity="0.7"><circle cx="30" cy="22" r="1.5"/><circle cx="70" cy="48" r="1"/><circle cx="262" cy="20" r="1.5"/><circle cx="292" cy="52" r="1"/><circle cx="236" cy="38" r="1"/><circle cx="52" cy="84" r="1"/></g>' +
+      '<circle cx="268" cy="30" r="12" fill="var(--paper)" opacity="0.85"/>' +
+      '<path fill="var(--panel)" d="M0 130V105h30V92h14v13h20V98l12-14 12 14v7h24V88h10v17h30V96h16l10-12 10 12v9h28V90h14v15h26V100h28v30z"/>' +
+      '<g transform="translate(116,10) scale(1.8)" style="color:' + col + '" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' + (IC[ICBY[s.id]] || IC.env) + "</g></svg>";
+  }
+  function tlViz(a, b, la, lb) {
+    return '<svg class="viz" viewBox="0 0 320 104" role="img" aria-label="Zeitstrahl von ' + a + ' bis ' + b + '"><line x1="30" y1="56" x2="290" y2="56" stroke="var(--line)" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="56" r="8" fill="var(--brass)"/><circle cx="290" cy="56" r="8" fill="var(--panel-2)" stroke="var(--brass)" stroke-width="3"/><path d="M30 74v6h260v-6" fill="none" stroke="var(--muted)" stroke-width="1.6"/><text x="160" y="98" text-anchor="middle" font-size="14" font-weight="700" fill="var(--brass)">? Jahre</text><text x="16" y="38" font-size="16" font-weight="700" fill="var(--paper)">' + a + '</text><text x="304" y="38" text-anchor="end" font-size="16" font-weight="700" fill="var(--paper)">' + b + '</text><text x="16" y="16" font-size="11" fill="var(--muted)">' + esc(la) + '</text><text x="304" y="16" text-anchor="end" font-size="11" fill="var(--muted)">' + esc(lb) + "</text></svg>";
+  }
+  function archViz(n) {
+    var g = '<svg class="viz" viewBox="0 0 320 150" role="img" aria-label="Außenwand des Kolosseums mit drei Bogenreihen"><rect x="14" y="8" width="292" height="26" fill="var(--panel-2)" stroke="var(--line)"/>';
+    for (var w = 0; w < 14; w++) g += '<rect x="' + (24 + w * 20) + '" y="14" width="8" height="12" fill="var(--ink)" stroke="var(--line)"/>';
+    for (var r = 0; r < 3; r++) {
+      var y = 34 + r * 36;
+      g += '<rect x="14" y="' + y + '" width="292" height="36" fill="var(--panel)" stroke="var(--line)"/>';
+      for (var i = 0; i < 10; i++) { var x = 30 + i * 27; g += '<path d="M' + x + " " + (y + 34) + "v-14a8 8 0 0 1 16 0v14" + '" fill="var(--ink)" stroke="var(--brass)" stroke-width="2"/>'; }
+      if (n) g += '<text x="22" y="' + (y + 22) + '" text-anchor="middle" font-size="12" font-weight="700" fill="var(--brass)">' + n + "</text>";
+    }
+    return g + '<text x="160" y="146" text-anchor="middle" font-size="11" fill="var(--muted)">Ausschnitt: nur 10 Bögen pro Reihe gezeichnet</text></svg>';
+  }
+  function riversViz() {
+    var P = [[48, "Afrika"], [118, "Asien"], [202, "Europa"], [272, "Amerika"]], g = '<svg class="viz" viewBox="0 0 320 140" role="img" aria-label="Vier Flussgötter um einen Obelisken"><path d="M160 10l8 14-3 70h-10l-3-70z" fill="var(--panel-2)" stroke="var(--brass)" stroke-width="2"/>';
+    P.forEach(function (q, i) {
+      var x = q[0], y = 80;
+      g += '<ellipse cx="' + x + '" cy="' + (y + 20) + '" rx="22" ry="12" fill="var(--panel)" stroke="var(--water)" stroke-width="2"/><circle cx="' + x + '" cy="' + (y - 2) + '" r="9" fill="var(--ink)" stroke="var(--paper)" stroke-width="2"/>';
+      if (i === 0) g += '<path d="M' + (x - 12) + " " + (y - 14) + "h24v14c-6 6-18 6-24 0z" + '" fill="var(--paper)" fill-opacity="0.75"/>';
+      g += '<text x="' + x + '" y="132" text-anchor="middle" font-size="11" fill="var(--muted)">' + q[1] + "</text>";
+    });
+    return g + "</svg>";
+  }
+  function compassViz() {
+    var g = '<svg class="viz" viewBox="0 0 320 140" role="img" aria-label="Kompass, die Sonne geht links unter"><circle cx="190" cy="70" r="50" fill="none" stroke="var(--line)" stroke-width="3"/><path d="M190 22l6 14h-12z" fill="var(--brass)"/><text x="190" y="16" text-anchor="middle" font-size="13" font-weight="700" fill="var(--brass)">N</text><g stroke="var(--muted)" stroke-width="2" stroke-linecap="round"><path d="M190 80V120M150 70H230M190 20V60"/></g><text x="134" y="74" text-anchor="middle" font-size="18" font-weight="700" fill="var(--paper)">?</text>';
+    g += '<g transform="translate(46,78)"><circle r="14" fill="var(--fire)"/><g stroke="var(--fire)" stroke-width="2.5" stroke-linecap="round"><path d="M0-22v-6M0 22v6M-22 0h-6M22 0h6M-16-16l-4-4M16-16l4-4M-16 16l-4 4M16 16l4 4"/></g></g><path d="M12 110h70" stroke="var(--line)" stroke-width="3" stroke-linecap="round"/><text x="46" y="130" text-anchor="middle" font-size="11" fill="var(--muted)">Sonnenuntergang</text>';
+    return g + "</svg>";
+  }
+  function domeViz() {
+    return '<svg class="viz" viewBox="0 0 320 140" role="img" aria-label="Querschnitt der Pantheon-Kuppel mit einer Öffnung oben"><path d="M154 18L120 130H200L166 18z" fill="var(--brass)" fill-opacity="0.13"/><path d="M80 96A80 80 0 0 1 148 18M172 18A80 80 0 0 1 240 96" fill="none" stroke="var(--brass)" stroke-width="3"/><path d="M80 96V130M240 96V130M60 130H260" fill="none" stroke="var(--paper)" stroke-width="3" stroke-linecap="round"/><text x="160" y="12" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brass)">?</text></svg>';
+  }
+  function walkViz() {
+    return '<svg class="viz" viewBox="0 0 320 96" role="img" aria-label="Weg von der Engelsburg zum Vatikan"><g transform="translate(10,14) scale(1.1)" style="color:var(--brass)" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' + IC.castle + '</g><g transform="translate(250,14) scale(1.1)" style="color:var(--paper)" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' + IC.dome + '</g><path d="M70 40H248" stroke="var(--muted)" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"/><text x="160" y="32" text-anchor="middle" font-size="15" font-weight="700" fill="var(--brass)">800 m</text><text x="160" y="62" text-anchor="middle" font-size="12" fill="var(--muted)">Tempo: 4 km/h</text><text x="35" y="86" text-anchor="middle" font-size="11" fill="var(--muted)">Engelsburg</text><text x="285" y="86" text-anchor="middle" font-size="11" fill="var(--muted)">Vatikan</text></svg>';
+  }
+  function vizHTML(v) {
+    if (!v) return "";
+    var a = v.split("|");
+    if (a[0] === "tl") return tlViz(a[1], a[2], a[3], a[4]);
+    if (a[0] === "arch0") return archViz("");
+    if (a[0] === "arch80") return archViz("80");
+    if (a[0] === "rivers") return riversViz();
+    if (a[0] === "compass") return compassViz();
+    if (a[0] === "dome") return domeViz();
+    if (a[0] === "walk") return walkViz();
+    return "";
+  }
+  var JOKES = {
+    "m-moses": "Michelangelo meißelte Moses so lebensecht, dass er gleich aufstehen wollte. Dann kam Chuck Norris vorbei, und er blieb lieber sitzen.",
+    "m-kolo": "Chuck Norris braucht kein Ticket fürs Kolosseum. Das Kolosseum kauft eins, wenn er vorbeikommt.",
+    "m-forum": "Die Römer bauten Straßen in alle Richtungen. Chuck Norris war schon da und hat gewartet.",
+    "m-popolo": "Chuck Norris braucht keine Siegel. Briefe öffnen sich vor ihm von selbst.",
+    "m-navona": "Der Nil hält sich das Tuch vors Gesicht, weil Chuck Norris vorbeigeschwommen ist. Rückwärts.",
+    "m-pantheon": "Das Loch in der Kuppel? Da hat sich Chuck Norris mal gestreckt.",
+    "d-vittoria": "Der Engel zielt mit dem Pfeil auf Teresa. Chuck Norris fängt Pfeile mit den Zähnen und schickt sie zurück.",
+    "d-platz": "Der Westwind weht nur, weil Chuck Norris ausgeatmet hat.",
+    "d-dom": "Michelangelo brauchte Jahre für die Kuppel. Chuck Norris hätte sie in der Mittagspause hochgehoben.",
+    "d-burg": "Der Engel steckt sein Schwert ein, weil Chuck Norris ihn nur angeguckt hat.",
+    "w-barb": "Chuck Norris braucht keinen Bernini. Seine Brunnen laufen von allein."
+  };
+  var FALLJ = ["Chuck Norris hat Rom nicht in einem Tag gebaut. Er hat es gebaut, als er Lust hatte.", "Alle Wege führen nach Rom. Chuck Norris ist der Grund dafür.", "Chuck Norris löst Rätsel nicht. Rätsel lösen sich, wenn er reinkommt.", "Chuck Norris hat die Pizza erfunden. Italien hat sie nur einen Tag später verlangt."];
+  function jokeHTML(t) { return '<div class="bubble"><span class="fist"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><circle cx="24" cy="24" r="20"/><path d="M24 12l3.5 8 8.5.8-6.4 5.6 1.9 8.4L24 30.5l-7.5 4.3 1.9-8.4L12 20.8l8.5-.8z"/></svg></span><div><b>Chuck-Fakt</b><br>' + esc(t) + "</div></div>"; }
+  function legendHTML() {
+    return '<div class="legend">' + ORDER.map(function (k) { return '<div class="lg">' + sealSVG(k, true) + "<span>" + ELEM[k].name + "</span></div>"; }).join("") + "</div>";
+  }
+  function routeMap() {
+    var N = [
+      { id: "m-popolo", x: 168, y: 26, l: "Popolo", k: "earth" }, { id: "m-navona", x: 150, y: 104, l: "Navona", k: "water" },
+      { id: "d-vittoria", x: 238, y: 46, l: "Vittoria", k: "fire" }, { id: "d-platz", x: 56, y: 100, l: "Petersplatz", k: "air" },
+      { id: "d-burg", x: 100, y: 62, l: "Engelsburg", fin: true }
+    ];
+    var H = { x: 280, y: 84 };
+    var g = '<svg class="routesvg" viewBox="0 0 320 140" role="img" aria-label="Karte der Stationen">';
+    g += '<path d="M118 0C138 34 92 50 122 86S168 124 196 140" fill="none" stroke="var(--water)" stroke-opacity="0.35" stroke-width="9" stroke-linecap="round"/>';
+    g += '<g fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="3 5" stroke-linecap="round"><path d="M280 84L168 26L150 104"/><path d="M280 84L238 46L56 100"/><path d="M56 100L100 62"/></g>';
+    g += '<circle cx="280" cy="84" r="9" fill="var(--brass)"/><text x="280" y="108" text-anchor="middle" font-size="11" fill="var(--muted)">Hotel</text>';
+    N.forEach(function (n) {
+      var on = stopDone(STOPS[n.id]), c = n.fin ? "var(--brass)" : ELEM[n.k].color;
+      g += '<circle cx="' + n.x + '" cy="' + n.y + '" r="12" fill="' + (on ? c : "var(--ink)") + '" fill-opacity="' + (on ? 0.35 : 1) + '" stroke="' + (on ? c : "var(--line)") + '" stroke-width="2.5"' + (on ? "" : ' stroke-dasharray="3 3"') + "/>";
+      g += '<text x="' + n.x + '" y="' + (n.y + 4) + '" text-anchor="middle" font-size="11" font-weight="700" fill="' + (on ? c : "var(--muted)") + '">' + (on ? "✓" : n.fin ? "★" : "?") + "</text>";
+      g += '<text x="' + n.x + '" y="' + (n.y + 26) + '" text-anchor="middle" font-size="11" fill="var(--muted)">' + n.l + "</text>";
+    });
+    return g + "</svg>";
+  }
+  function sealSVG(k, on, big) {
+    var e = ELEM[k], c = e.color;
+    var tri = e.up ? "M50 22 L80 72 L20 72 Z" : "M50 78 L80 28 L20 28 Z";
+    var bar = e.bar ? (e.up ? '<line x1="29.6" y1="56" x2="70.4" y2="56"/>' : '<line x1="29.6" y1="44" x2="70.4" y2="44"/>') : "";
+    if (!on) return '<svg viewBox="0 0 100 100" role="img" aria-label="' + e.name + ', noch offen"><circle cx="50" cy="50" r="44" fill="none" stroke="var(--line)" stroke-width="3" stroke-dasharray="4 5"/><g fill="none" stroke="var(--line)" stroke-width="3" stroke-linejoin="round"><path d="' + tri + '"/>' + bar.replace("<line", "<line stroke-width=\"3\"") + "</g></svg>";
+    return '<svg viewBox="0 0 100 100" role="img" aria-label="' + e.name + ', gesichert"><circle cx="50" cy="50" r="46" fill="' + c + '" fill-opacity="0.18" stroke="' + c + '" stroke-width="3.5"/><circle cx="50" cy="50" r="38" fill="none" stroke="' + c + '" stroke-opacity="0.5" stroke-width="1.5"/><g fill="none" stroke="' + c + '" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"><path d="' + tri + '"/>' + bar + "</g></svg>";
+  }
+  function finaleSVG(on) {
+    if (!on) return '<svg viewBox="0 0 100 100" role="img" aria-label="Versteck, noch offen"><circle cx="50" cy="50" r="44" fill="none" stroke="var(--line)" stroke-width="3" stroke-dasharray="4 5"/><g stroke="var(--line)" stroke-width="3" stroke-linecap="round"><line x1="50" y1="24" x2="50" y2="76"/><line x1="38" y1="40" x2="62" y2="40"/></g></svg>';
+    return '<svg viewBox="0 0 100 100" role="img" aria-label="Versteck, gefunden"><circle cx="50" cy="50" r="46" fill="var(--brass)" fill-opacity="0.2" stroke="var(--brass)" stroke-width="3.5"/><g stroke="var(--brass)" stroke-width="5" stroke-linecap="round"><line x1="50" y1="24" x2="50" y2="76"/><line x1="36" y1="40" x2="64" y2="40"/></g></svg>';
+  }
+
+  /* ---------- Darstellung ---------- */
+  function renderTop() {
+    var held = sealsHeld(), fin = stopDone(finaleStop());
+    var h = '<div class="mini-seals">';
+    ORDER.forEach(function (k) { h += sealSVG(k, held.indexOf(k) >= 0); });
+    h += finaleSVG(fin) + '</div><div class="pts">' + total() + " / " + maxPts() + " Punkte</div>";
+    document.getElementById("top").innerHTML = h;
+    document.querySelectorAll(".mini-seals svg").forEach(function (s) { s.setAttribute("aria-hidden", "false"); });
+  }
+  var ICONS = {
+    fall: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h5"/></svg>',
+    tour: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+    seals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 6l5 9H7z"/></svg>',
+    eltern: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg>'
+  };
+  function renderTabs() {
+    var t = [["fall", "Fall"], ["tour", "Tour"], ["seals", "Siegel"], ["eltern", "Eltern"]];
+    document.getElementById("tabs").innerHTML = t.map(function (x) {
+      return '<button class="tab" data-act="tab" data-v="' + x[0] + '"' + (S.tab === x[0] && !S.view ? ' aria-current="page"' : "") + ">" + ICONS[x[0]] + "<span>" + x[1] + "</span></button>";
+    }).join("");
+  }
+
+  function viewFall() {
+    var held = sealsHeld().length, nx = nextStop(), h = "";
+    h += '<section class="card hero"><span class="stamp">Aktenzeichen R-2610</span><h1>Der Fall Rom</h1>';
+    h += '<p class="muted">Vier Siegel, ein Versteck, drei Tage. Du bist der Symbologe, Papa ist dein Sidekick und schleppt Tickets und Kohle.</p>';
+    h += S.opened ? "" : '<button class="btn" data-act="open-dossier">Dossier öffnen</button>';
+    h += "</section>";
+    if (S.opened) {
+      h += '<section class="card"><span class="mono">Das Dossier</span><div class="letter">';
+      h += "<p>Letzte Nacht lag ein Umschlag ohne Absender vor der Tür. Drin: vier Zeichen und ein Satz. Wer die Elemente in Rom findet, findet das Versteck.</p>";
+      h += "<p>Die Zeichen sind uralt. Alchemisten haben die vier Elemente als Dreiecke gemalt. Feuer und Luft zeigen nach oben, Wasser und Erde nach unten. Luft und Erde haben einen Strich quer durch, Feuer und Wasser nicht.</p>";
+      h += "<p>Vier Orte in Rom passen dazu. An jedem holst du ein Siegel. Sind alle vier da, zeigen sie dir das Versteck.</p>";
+      h += "<p>Dein Auftrag: Hin zu jedem Ort, Rätsel knacken, Siegel sichern. Die Orte sind echt, die Story ist ausgedacht. Inspiriert vom Roman Illuminati von Dan Brown, die Rätsel sind extra für diese Reise geschrieben.</p></div>" + legendHTML() + "</section>";
+    }
+    h += '<section class="card"><span class="mono">Stand</span>';
+    h += "<p><b>" + held + " von 4 Siegeln</b>" + (stopDone(finaleStop()) ? ", Versteck gefunden." : ".") + "</p>";
+    if (nx) {
+      h += '<div class="stop-actions"><button class="btn" data-act="goto" data-d="' + nx.day.id + '" data-s="' + nx.stop.id + '">Weiter: ' + esc(nx.stop.name) + '</button></div>';
+      h += '<p class="small muted">' + esc(nx.day.label) + ", " + esc(nx.stop.time) + " Uhr, " + esc(nx.stop.where) + "</p>";
+    } else h += "<p>Alles gelöst. Du bist der Boss.</p>";
+    h += "</section>";
+    h += '<section class="card"><span class="mono">Route</span>' + routeMap() + '<p class="small muted">Gefüllte Kreise sind gesicherte Orte. Montag oben links, Dienstag unten.</p></section>';
+    h += jokeHTML(FALLJ[(Object.keys(S.done).length) % FALLJ.length]);
+    h += '<section class="card"><span class="mono">Nutzung</span><p class="small muted">Dein Fortschritt bleibt auf diesem Handy gespeichert. Öffne die App am besten immer in Safari. Karten gehen direkt in Apple Karten auf.</p></section>';
+    return h;
+  }
+
+  function stopCard(d, s) {
+    var done = s.puzzle && stopDone(s), locked = s.finale && sealsHeld().length < 4;
+    var h = '<div class="stop"><div class="t">' + esc(s.time) + '</div><div class="body' + (done ? " done" : "") + '" id="st-' + s.id + '"><div class="hd"><span class="badge">' + ico(ICBY[s.id]) + '</span><div><h3>' + esc(s.name) + '</h3><p class="small muted">' + esc(s.where) + "</p></div></div>";
+    var tags = "";
+    if (s.seal) tags += '<span class="tag ' + s.seal + '">Siegel ' + ELEM[s.seal].name + "</span>";
+    if (s.finale) tags += '<span class="tag finale">Finale</span>';
+    if (s.puzzle && !s.seal && !s.finale) tags += '<span class="tag">Rätsel</span>';
+    if (done) tags += '<span class="tag ok">gelöst</span>';
+    if (tags) h += '<div class="tags">' + tags + "</div>";
+    if (s.note) h += '<p class="small">' + esc(s.note) + "</p>";
+    h += '<div class="stop-actions">';
+    if (s.puzzle) h += '<button class="btn' + (locked ? " dim" : "") + '" data-act="puzzle" data-s="' + s.id + '">' + (done ? "Rätsel ansehen" : locked ? "Gesperrt, erst vier Siegel" : "Rätsel starten") + "</button>";
+    h += '<a class="btn ghost" href="' + mapsUrl(s.maps) + '" target="_blank" rel="noopener">In Karten öffnen</a></div></div></div>';
+    return h;
+  }
+  function viewTour() {
+    var d = DAYS.filter(function (x) { return x.id === S.day; })[0] || DAYS[0];
+    var h = '<div class="chips" role="group" aria-label="Tag wählen">' + DAYS.map(function (x) { return '<button class="chip" data-act="day" data-v="' + x.id + '" aria-pressed="' + (x.id === d.id) + '">' + esc(x.label) + "</button>"; }).join("") + "</div>";
+    h += '<div class="daybox"><h2>' + esc(d.title) + '</h2><p class="small muted">' + esc(d.role) + "</p></div>";
+    h += '<div class="timeline">' + d.stops.map(function (s) { return stopCard(d, s); }).join("") + "</div>";
+    return h;
+  }
+
+  function viewSeals() {
+    var held = sealsHeld(), h = '<div class="seal-grid">';
+    ORDER.forEach(function (k) {
+      var st = sealStop(k), on = held.indexOf(k) >= 0;
+      h += '<div class="seal-cell">' + sealSVG(k, on) + "<b>" + ELEM[k].name + '</b><span class="small muted">' + (on ? "gesichert" : esc(st.name)) + "</span></div>";
+    });
+    h += "</div>";
+    var fin = stopDone(finaleStop());
+    h += '<div class="seal-cell">' + finaleSVG(fin) + "<b>Das Versteck</b><span class=\"small muted\">" + (fin ? "gefunden: Engelsburg" : sealsHeld().length < 4 ? "noch " + (4 - sealsHeld().length) + " Siegel fehlen" : "bereit für das Finale") + "</span></div>";
+    h += '<section class="card"><span class="mono">Punkte</span><p><b>' + total() + " von " + maxPts() + "</b>. Pro Frage gibt es 3 Punkte, jeder Tipp kostet einen.</p></section>";
+    h += '<section class="card"><span class="mono">Notizbuch</span><div class="notes">';
+    if (!S.notes.length) h += '<p class="muted small">Noch leer. Jede gelöste Frage legt hier einen Eintrag an.</p>';
+    S.notes.forEach(function (n) { h += '<div class="note"><b>' + esc(n.t) + "</b><br>" + esc(n.r) + "</div>"; });
+    h += "</div></section>";
+    return h;
+  }
+
+  function viewEltern() {
+    var h = '<section class="card"><span class="mono">Für Eltern</span><p class="small">Hier stehen Hinweise zu Tickets, Zeiten und Lösungen. Öffnungszeiten stammen aus Reisequellen und sind nicht amtlich geprüft. Stand der Recherche: 20.10.2026.</p></section>';
+    PARENT.forEach(function (p) {
+      h += "<details><summary>" + esc(p.day) + "</summary>" + p.items.map(function (i) { return '<div class="kv"><b>' + esc(i[0]) + "</b><span>" + esc(i[1]) + "</span></div>"; }).join("") + "</details>";
+    });
+    h += "<details><summary>Lösungen aller Rätsel</summary><ul class=\"plain\">";
+    DAYS.forEach(function (d) { d.stops.forEach(function (s) { if (s.puzzle) s.puzzle.steps.forEach(function (st) { h += "<li><b>" + esc(s.name) + ":</b> " + esc(st.accept[0].charAt(0).toUpperCase() + st.accept[0].slice(1)) + "</li>"; }); }); });
+    h += "</ul></details>";
+    h += '<section class="card"><span class="mono">Fortschritt</span>';
+    if (!S.resetAsk) h += '<button class="btn ghost" data-act="reset-ask">Fortschritt zurücksetzen</button>';
+    else h += '<p class="small">Wirklich alles löschen? Siegel, Punkte und Notizbuch gehen verloren.</p><div class="row"><button class="btn" data-act="reset-yes">Ja, löschen</button><button class="btn ghost" data-act="reset-no">Abbrechen</button></div>';
+    h += "</section>";
+    return h;
+  }
+
+  function viewPuzzle() {
+    var s = STOPS[S.view], p = s.puzzle, locked = s.finale && sealsHeld().length < 4, h = "";
+    h += '<button class="btn ghost back" data-act="back">Zurück zur Tour</button>';
+    h += '<section class="card hero"><div class="tags">' + (s.seal ? '<span class="tag ' + s.seal + '">Siegel ' + ELEM[s.seal].name + "</span>" : s.finale ? '<span class="tag finale">Finale</span>' : '<span class="tag">Rätsel</span>') + "</div>";
+    h += "<h2>" + esc(p.title) + '</h2><p class="muted">' + esc(s.name) + ", " + esc(s.where) + "</p>";
+    h += '<div class="scene">' + scene(s) + '</div><p class="letter">' + esc(p.intro) + "</p></section>";
+    if (locked) {
+      h += '<section class="card locked"><p>Das Finale ist noch zu. Erst alle vier Siegel holen. Es fehlen noch ' + (4 - sealsHeld().length) + ".</p></section>";
+      return h;
+    }
+    var shown = false;
+    p.steps.forEach(function (st, i) {
+      if (S.done[st.id]) {
+        h += '<section class="card"><span class="mono">Frage ' + (i + 1) + "</span><p>" + esc(st.q) + '</p><div class="reveal"><b>' + (S.pts[st.id] > 0 ? "Läuft, " + S.pts[st.id] + (S.pts[st.id] === 1 ? " Punkt" : " Punkte") : "Aufgelöst") + "</b><span>" + esc(st.reveal) + "</span></div></section>";
+      } else if (!shown) {
+        shown = true;
+        var nh = S.hints[st.id] || 0, m = S.msg[st.id];
+        h += '<section class="card step"><span class="mono">Frage ' + (i + 1) + " von " + p.steps.length + '</span>' + vizHTML(st.viz) + '<p class="q">' + esc(st.q) + "</p>";
+        h += '<label class="small muted" for="ans">Deine Antwort</label><input type="text" id="ans" data-step="' + st.id + '" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" value="' + esc(S.draft[st.id] || "") + '">';
+        h += '<div class="msg ' + (m ? m.k : "") + '">' + (m ? esc(m.t) : "") + "</div>";
+        for (var j = 0; j < nh; j++) h += '<div class="hint"><b>Tipp ' + (j + 1) + ":</b> " + esc(st.hints[j]) + "</div>";
+        h += '<div class="row"><button class="btn" data-act="check" data-step="' + st.id + '">Prüfen</button>';
+        if (nh < st.hints.length) h += '<button class="btn ghost" data-act="hint" data-step="' + st.id + '">Tipp zeigen</button>';
+        h += "</div>";
+        if (nh >= st.hints.length) h += '<button class="btn dim" data-act="giveup" data-step="' + st.id + '">Ich checke es nicht, Lösung zeigen</button>';
+        h += "</section>";
+      }
+    });
+    if (stopDone(s)) {
+      h += '<section class="card seal-win">';
+      if (s.seal) h += sealSVG(s.seal, true) + "<h2>Siegel der " + ELEM[s.seal].name + "</h2>";
+      else if (s.finale) h += finaleSVG(true) + "<h2>Fall gelöst</h2>";
+      else h += "<h2>Station geschafft</h2>";
+      h += "<p class=\"muted\">" + esc(p.outro || "Gut gemacht, Symbologe. Läuft.") + "</p>" + (JOKES[s.id] ? jokeHTML(JOKES[s.id]) : "");
+      if (s.finale) h += '<p>Du hast <b>' + total() + " von " + maxPts() + " Punkten</b>. Der Fall Rom ist abgeschlossen.</p>";
+      h += '<button class="btn" data-act="back">Weiter in der Tour</button></section>';
+    }
+    return h;
+  }
+
+  function render(keepScroll) {
+    var y = window.scrollY;
+    var h = S.view ? viewPuzzle() : S.tab === "fall" ? viewFall() : S.tab === "tour" ? viewTour() : S.tab === "seals" ? viewSeals() : viewEltern();
+    document.getElementById("app").innerHTML = h;
+    renderTop(); renderTabs();
+    if (!keepScroll) window.scrollTo(0, 0); else window.scrollTo(0, y);
+  }
+
+  /* ---------- Aktionen ---------- */
+  function award(stepId) {
+    var used = S.hints[stepId] || 0;
+    S.pts[stepId] = Math.max(1, 3 - used);
+  }
+  function addNote(stepId) {
+    var st = STEPS[stepId], stop = null;
+    DAYS.forEach(function (d) { d.stops.forEach(function (s) { if (s.puzzle && s.puzzle.steps.indexOf(st) >= 0) stop = s; }); });
+    S.notes.push({ id: stepId, t: stop.name, r: st.reveal });
+  }
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-act]"); if (!el) return;
+    var a = el.getAttribute("data-act");
+    if (a === "tab") { S.tab = el.getAttribute("data-v"); S.view = null; S.resetAsk = false; render(); }
+    else if (a === "day") { S.day = el.getAttribute("data-v"); save(); render(); }
+    else if (a === "open-dossier") { S.opened = true; save(); render(true); }
+    else if (a === "goto") { S.day = el.getAttribute("data-d"); S.tab = "tour"; S.view = el.getAttribute("data-s"); save(); render(); }
+    else if (a === "puzzle") { S.view = el.getAttribute("data-s"); S.tab = "tour"; render(); }
+    else if (a === "back") { S.view = null; render(); }
+    else if (a === "hint") { var id = el.getAttribute("data-step"); var inp = document.getElementById("ans"); if (inp) S.draft[id] = inp.value; S.hints[id] = (S.hints[id] || 0) + 1; save(); render(true); }
+    else if (a === "check") { checkAnswer(el.getAttribute("data-step")); }
+    else if (a === "giveup") { var g = el.getAttribute("data-step"); S.done[g] = true; S.pts[g] = 0; addNote(g); save(); render(); }
+    else if (a === "reset-ask") { S.resetAsk = true; render(true); }
+    else if (a === "reset-no") { S.resetAsk = false; render(true); }
+    else if (a === "reset-yes") { S.done = {}; S.pts = {}; S.notes = []; S.hints = {}; S.msg = {}; S.draft = {}; S.opened = false; S.resetAsk = false; save(); render(); }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && e.target && e.target.id === "ans") { e.preventDefault(); checkAnswer(e.target.getAttribute("data-step")); }
+  });
+  function checkAnswer(id) {
+    var inp = document.getElementById("ans"), v = inp ? inp.value : "", st = STEPS[id];
+    S.draft[id] = v;
+    if (!norm(v)) { S.msg[id] = { k: "bad", t: "Erst mal was eintippen." }; render(true); return; }
+    if (matches(v, st.accept)) {
+      S.done[id] = true; award(id); addNote(id); S.msg[id] = null; save(); render();
+    } else {
+      S.msg[id] = { k: "bad", t: "Nope, das war's noch nicht. Guck nochmal genau hin oder zieh einen Tipp." }; render(true);
+    }
+  }
+
+  render();
+})();
+</script>
