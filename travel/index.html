@@ -295,7 +295,7 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
   var S = {
     tab: "fall", view: null, resetAsk: false, msg: {}, draft: {}, revealAns: {},
     opened: !!saved.opened, done: saved.done || {}, pts: saved.pts || {}, notes: saved.notes || [], hints: saved.hints || {},
-    day: saved.day || pickDay(), openStop: null
+    day: saved.day || pickDay(), openStop: null, unlocked: false, pinMsg: ""
   };
 
   /* ---------- Hilfen ---------- */
@@ -530,7 +530,18 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
     return h;
   }
 
+  function h53(s) { var a = 0xdeadbeef, b = 0x41c6ce57; for (var i = 0; i < s.length; i++) { var c = s.charCodeAt(i); a = Math.imul(a ^ c, 2654435761); b = Math.imul(b ^ c, 1597334677); } a = Math.imul(a ^ (a >>> 16), 2246822507) ^ Math.imul(b ^ (b >>> 13), 3266489909); b = Math.imul(b ^ (b >>> 16), 2246822507) ^ Math.imul(a ^ (a >>> 13), 3266489909); return (4294967296 * (2097151 & b) + (a >>> 0)).toString(36); }
+  var PIN_HASH = "7xyfgxkm7b";
+  function tryPin() {
+    var inp = document.getElementById("pin"), v = inp ? inp.value.replace(/\s/g, "") : "";
+    if (h53("rom-eltern:" + v) === PIN_HASH) { S.unlocked = true; S.pinMsg = ""; render(); }
+    else { S.pinMsg = "Falscher Code."; render(true); }
+  }
+  function viewPin() {
+    return '<section class="card"><span class="mono">Für Eltern</span><p class="small">Dieser Bereich ist mit einem Code geschützt.</p><input type="password" id="pin" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="12" placeholder="Code" aria-label="Code"><p class="msg bad small" role="status">' + esc(S.pinMsg) + '</p><button class="btn" data-act="pin">Öffnen</button></section>';
+  }
   function viewEltern() {
+    if (!S.unlocked) return viewPin();
     var h = '<section class="card"><span class="mono">Für Eltern</span><p class="small">Hier stehen Hinweise zu Tickets, Zeiten und Lösungen. Öffnungszeiten stammen aus Reisequellen und sind nicht amtlich geprüft. Stand der Recherche: 20.10.2026.</p></section>';
     PARENT.forEach(function (p) {
       h += "<details><summary>" + esc(p.day) + "</summary>" + p.items.map(function (i) { return '<div class="kv"><b>' + esc(i[0]) + "</b><span>" + esc(i[1]) + "</span></div>"; }).join("") + "</details>";
@@ -606,7 +617,8 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
   document.addEventListener("click", function (e) {
     var el = e.target.closest("[data-act]"); if (!el) return;
     var a = el.getAttribute("data-act");
-    if (a === "tab") { S.tab = el.getAttribute("data-v"); S.view = null; S.resetAsk = false; render(); }
+    if (a === "tab") { S.tab = el.getAttribute("data-v"); S.view = null; S.resetAsk = false; S.unlocked = false; S.pinMsg = ""; render(); }
+    else if (a === "pin") { tryPin(); }
     else if (a === "day") { S.day = el.getAttribute("data-v"); save(); render(); }
     else if (a === "open-dossier") { S.opened = true; save(); render(true); }
     else if (a === "goto") { S.day = el.getAttribute("data-d"); S.tab = "tour"; S.view = el.getAttribute("data-s"); save(); render(); }
@@ -620,6 +632,7 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
     else if (a === "reset-yes") { S.done = {}; S.pts = {}; S.notes = []; S.hints = {}; S.msg = {}; S.draft = {}; S.opened = false; S.resetAsk = false; save(); render(); }
   });
   document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && e.target && e.target.id === "pin") { e.preventDefault(); tryPin(); return; }
     if (e.key === "Enter" && e.target && e.target.id === "ans") { e.preventDefault(); checkAnswer(e.target.getAttribute("data-step")); }
   });
   function checkAnswer(id) {
