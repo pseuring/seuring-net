@@ -661,7 +661,7 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
     else if (a === "back") { S.view = null; render(); }
     else if (a === "hint") { var id = el.getAttribute("data-step"); var inp = document.getElementById("ans"); if (inp) S.draft[id] = inp.value; S.hints[id] = (S.hints[id] || 0) + 1; save(); render(true); }
     else if (a === "check") { checkAnswer(el.getAttribute("data-step")); }
-    else if (a === "giveup") { var g = el.getAttribute("data-step"); S.done[g] = true; S.pts[g] = 0; addNote(g); save(); render(); }
+    else if (a === "giveup") { var g = el.getAttribute("data-step"); S.done[g] = true; S.pts[g] = 0; addNote(g); save(); render(true); }
     else if (a === "reset-ask") { S.resetAsk = true; render(true); }
     else if (a === "reset-no") { S.resetAsk = false; render(true); }
     else if (a === "reset-yes") { S.done = {}; S.pts = {}; S.notes = []; S.hints = {}; S.msg = {}; S.draft = {}; S.opened = false; S.resetAsk = false; save(); render(); }
@@ -675,7 +675,7 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
     S.draft[id] = v;
     if (!norm(v)) { S.msg[id] = { k: "bad", t: "Erst mal was eintippen." }; render(true); return; }
     if (matches(v, st.accept)) {
-      S.done[id] = true; award(id); addNote(id); S.msg[id] = null; save(); render();
+      S.done[id] = true; award(id); addNote(id); S.msg[id] = null; save(); render(true);
     } else {
       S.msg[id] = { k: "bad", t: "Nope, das war's noch nicht. Guck nochmal genau hin oder zieh einen Tipp." }; render(true);
     }
