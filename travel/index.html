@@ -177,13 +177,13 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
       { id: "s-essen", time: "20:00", name: "Abendessen", where: "Ai Tre Scalini, Via Panisperna 251", maps: "Ai Tre Scalini Via Panisperna 251 Roma", note: "Kassenwart: Du rechnest die Rechnung nach, Papa darf nicht schummeln. Frage des Abends: Was war heute das Schrägste?" }
     ]},
     { id: "mo", label: "Mo 26.10.", title: "Erde und Wasser", role: "Fotograf: fünf Bilder zum Thema Ruine trifft Alltag.", stops: [
-      { id: "m-pantheon", time: "09:15", name: "Pantheon", where: "Piazza della Rotonda", maps: "Pantheon Roma", note: "Gleich als Erstes. Vom Hotel mit dem Taxi (rund 10 Minuten) oder Bus, Papa prüft vorher in Karten, was fährt. Laut Quelle ab 9 Uhr offen, morgens ist es leerer. Kinder unter 18 gratis, Erwachsene wenige Euro.", puzzle: {
+      { id: "m-pantheon", time: "09:15", name: "Pantheon", where: "Piazza della Rotonda", maps: "Pantheon Roma", note: "Gleich als Erstes. Vom Hotel mit dem Taxi (rund 10 Minuten) oder Bus, Papa prüft vorher in Google Maps, was fährt. Laut Quelle ab 9 Uhr offen, morgens ist es leerer. Kinder unter 18 gratis, Erwachsene wenige Euro.", puzzle: {
         title: "Das Grab des Meisters", intro: "Fast 2000 Jahre alt und steht immer noch. Hier liegt ein berühmter Maler, dessen Kapelle ihr heute Abend besucht.",
         steps: [
           { id: "pan1", viz: "dome", q: "Die Öffnung ganz oben in der Kuppel lässt Licht und Regen herein. Wie heißt sie?", accept: ["oculus", "auge"], hints: ["Das lateinische Wort bedeutet Auge.", "Es beginnt mit O."], reveal: "Das Oculus misst gut acht Meter. Der Boden neigt sich leicht und hat Abflusslöcher, damit der Regen abläuft." },
           { id: "pan2", viz: "tl|1483|1520|Raffael geboren|gestorben", q: "Such Raffaels Grab: Über dem Sarkophag steht eine Marienstatue. Raffael lebte von 1483 bis 1520. Wie alt wurde er?", accept: ["37"], hints: ["Rechne 1520 minus 1483.", "Es sind mehr als 35 und weniger als 40 Jahre."], reveal: "37 Jahre. Er starb 1520, oft heißt es, genau an seinem Geburtstag. Sein Grab im Pantheon ist bis heute ein Pilgerort." }
         ] } },
-      { id: "m-moses", time: "10:30", name: "Moses von Michelangelo", where: "San Pietro in Vincoli", maps: "San Pietro in Vincoli Roma", note: "Eintritt frei. Aufwärmrätsel. Vom Pantheon mit Taxi oder Bus (rund 15 Minuten), Navigator wählt in Apple Karten die Öffis. Das Ende ist ein kurzer Fußweg.", puzzle: {
+      { id: "m-moses", time: "10:30", name: "Moses von Michelangelo", where: "San Pietro in Vincoli", maps: "San Pietro in Vincoli Roma", note: "Eintritt frei. Aufwärmrätsel. Vom Pantheon mit Taxi oder Bus (rund 15 Minuten), Navigator wählt in Google Maps die Öffis. Das Ende ist ein kurzer Fußweg.", puzzle: {
         title: "Der Mann mit dem Auffälligen", intro: "Ein Marmor-Typ sitzt hier seit über 500 Jahren rum. Guck ihm mal auf den Kopf.",
         steps: [{ id: "moses1", q: "Moses hat was Seltsames auf dem Kopf. Was?", accept: ["horn", "hoerner", "hörner", "horner"], hints: ["Schau auf seine Stirn, ganz oben.", "Zwei kleine spitze Dinger, wie bei einem Stier."], reveal: "Hörner. Eine alte lateinische Bibelübersetzung machte aus einem Wort für strahlend das Wort gehörnt (so wird es meist erklärt). Michelangelo hat es einfach übernommen." }] } },
       { id: "m-forum", time: "11:15", name: "Forum Romanum und Palatin", where: "Eingang Largo della Salara Vecchia", maps: "Foro Romano Largo della Salara Vecchia Roma", note: "Eltern kaufen vorher den Forum Pass Super. Kapitelfrage: Wo hat Rom entschieden? Heute ruhig angehen: Nur die Via Sacra bis zum Titusbogen, den Palatin-Hügel lasst ihr weg. Bänke und Pausen sind ausdrücklich erlaubt.", puzzle: {
@@ -339,7 +339,7 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
     DAYS.forEach(function (d) { d.stops.forEach(function (s) { if (!res && s.puzzle && !bonusOnly(s) && !stopDone(s)) { if (s.finale && sealsHeld().length < 4) return; res = { day: d, stop: s }; } }); });
     return res;
   }
-  function mapsUrl(q) { return "https://maps.apple.com/?q=" + encodeURIComponent(q); }
+  function mapsUrl(q) { return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q); }
 
   var IC = {
     train: '<path d="M14 8h20a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z"/><path d="M10 22h28M17 34l-4 6M31 34l4 6"/><circle cx="17" cy="28" r="1.6"/><circle cx="31" cy="28" r="1.6"/>',
@@ -508,7 +508,7 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
     h += "</section>";
     h += '<section class="card"><span class="mono">Route</span>' + routeMap() + '<p class="small muted">Gefüllte Kreise sind gesicherte Orte. Montag oben links, Dienstag unten.</p></section>';
     h += jokeHTML(FALLJ[(Object.keys(S.done).length) % FALLJ.length]);
-    h += '<section class="card"><span class="mono">Nutzung</span><p class="small muted">Dein Fortschritt bleibt auf diesem Handy gespeichert. Öffne die App am besten immer in Safari. Karten gehen direkt in Apple Karten auf.</p></section>';
+    h += '<section class="card"><span class="mono">Nutzung</span><p class="small muted">Dein Fortschritt bleibt auf diesem Handy gespeichert. Öffne die App am besten immer in Safari. Karten-Links öffnen Google Maps.</p></section>';
     return h;
   }
 
@@ -532,7 +532,7 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
     h += knowHTML(s);
     h += '<div class="stop-actions">';
     if (s.puzzle) h += '<button class="btn' + (locked ? " dim" : "") + '" data-act="puzzle" data-s="' + s.id + '">' + (done ? (!bonusOnly(s) && bonusOpen(s) ? "Bonusfragen" : "Rätsel ansehen") : locked ? "Gesperrt, erst vier Siegel" : bonusOnly(s) ? "Bonus-Rätsel starten" : "Rätsel starten") + "</button>";
-    h += '<a class="btn ghost" href="' + mapsUrl(s.maps) + '" target="_blank" rel="noopener">In Karten öffnen</a></div></div></div>';
+    h += '<a class="btn ghost" href="' + mapsUrl(s.maps) + '" target="_blank" rel="noopener">In Google Maps öffnen</a></div></div></div>';
     return h;
   }
   function viewTour() {
