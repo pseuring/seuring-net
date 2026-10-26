@@ -561,7 +561,7 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
   }
 
   function h53(s) { var a = 0xdeadbeef, b = 0x41c6ce57; for (var i = 0; i < s.length; i++) { var c = s.charCodeAt(i); a = Math.imul(a ^ c, 2654435761); b = Math.imul(b ^ c, 1597334677); } a = Math.imul(a ^ (a >>> 16), 2246822507) ^ Math.imul(b ^ (b >>> 13), 3266489909); b = Math.imul(b ^ (b >>> 16), 2246822507) ^ Math.imul(a ^ (a >>> 13), 3266489909); return (4294967296 * (2097151 & b) + (a >>> 0)).toString(36); }
-  var PIN_HASH = "7xyfgxkm7b";
+  var PIN_HASH = "16bieekht03";
   function tryPin() {
     var inp = document.getElementById("pin"), v = inp ? inp.value.replace(/\s/g, "") : "";
     if (h53("rom-eltern:" + v) === PIN_HASH) { S.unlocked = true; S.pinMsg = ""; render(); }
