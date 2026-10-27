@@ -104,6 +104,11 @@ input[type="text"] { width: 100%; font-size: 16px; padding: 14px; border-radius:
 .msg.bad { color: var(--bad); } .msg.ok { color: var(--ok); }
 .hint { background: var(--ink); border: 1px dashed var(--brass-dim); border-radius: 10px; padding: 10px 12px; font-size: 0.95rem; }
 .reveal { background: var(--ink); border-left: 3px solid var(--ok); padding: 10px 12px; border-radius: 4px 10px 10px 4px; display: flex; flex-direction: column; gap: 6px; }
+canvas#fw { width: 100%; height: 190px; display: block; }
+.fin-banner { border: 1px solid var(--brass); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; color: var(--brass); font-size: 0.95em; }
+.card.lost { opacity: 0.75; } .card.lose-final { text-align: center; border-color: var(--bad); }
+.power { border: 1px solid var(--brass); border-radius: 12px; padding: 12px; background: rgba(208,166,79,0.12); }
+.power b { display: block; color: var(--brass); font-size: 1.15em; margin: 4px 0; }
 .seal-win { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 10px 0; }
 .seal-win svg { width: 120px; height: 120px; animation: pop 0.6s ease-out both; }
 @keyframes pop { from { transform: scale(0.4) rotate(-12deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
@@ -306,7 +311,7 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
   var KEY = "fall-rom-v1";
   var mem = null;
   function load() { try { var r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch (e) {} return mem; }
-  function save() { var o = { opened: S.opened, done: S.done, pts: S.pts, notes: S.notes, day: S.day, hints: S.hints }; mem = o; try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
+  function save() { var o = { opened: S.opened, done: S.done, pts: S.pts, notes: S.notes, day: S.day, hints: S.hints, fin: S.fin }; mem = o; try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
   function pickDay() {
     var n = new Date(), m = n.getMonth(), d = n.getDate();
     if (m === 9) { if (d === 26) return "mo"; if (d === 27) return "di"; if (d === 28) return "mi"; }
@@ -315,7 +320,7 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
   var saved = load() || {};
   var S = {
     tab: "fall", view: null, resetAsk: false, msg: {}, draft: {}, revealAns: {},
-    opened: !!saved.opened, done: saved.done || {}, pts: saved.pts || {}, notes: saved.notes || [], hints: saved.hints || {},
+    opened: !!saved.opened, done: saved.done || {}, pts: saved.pts || {}, notes: saved.notes || [], hints: saved.hints || {}, fin: saved.fin || null, fwUntil: 0,
     day: saved.day || pickDay(), openStop: null, unlocked: false, pinMsg: ""
   };
 
@@ -594,19 +599,104 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
     if (st.bonus) return "Bonusfrage";
     return "Frage " + (i + 1) + (withTotal ? " von " + p.steps.filter(function (x) { return !x.bonus; }).length : "");
   }
-  function viewPuzzle() {
-    var s = STOPS[S.view], p = s.puzzle, locked = s.finale && sealsHeld().length < 4, h = "";
-    h += '<button class="btn ghost back" data-act="back">Zurück zur Tour</button>';
-    h += '<section class="card hero"><div class="tags">' + (s.seal ? '<span class="tag ' + s.seal + '">Siegel ' + ELEM[s.seal].name + "</span>" : s.finale ? '<span class="tag finale">Finale</span>' : '<span class="tag">' + (bonusOnly(s) ? "Bonus-Rätsel" : "Rätsel") + "</span>") + "</div>";
-    h += "<h2>" + esc(p.title) + '</h2><p class="muted">' + esc(s.name) + ", " + esc(s.where) + "</p>";
-    h += '<div class="scene">' + scene(s) + '</div><p class="letter">' + esc(p.intro) + "</p></section>";
-    h += knowHTML(s);
-    if (locked) {
-      h += '<section class="card locked"><p>Das Finale ist noch zu. Erst alle vier Siegel holen. Es fehlen noch ' + (4 - sealsHeld().length) + ".</p></section>";
-      return h;
+  /* ---------- Finale: drei Fragen, keine Tipps, zwei richtige gewinnen ---------- */
+  function finReq() { return finaleStop().puzzle.steps.filter(function (x) { return !x.bonus; }); }
+  function finState() {
+    var c = 0, b = 0, bad = (S.fin && S.fin.bad) || {};
+    finReq().forEach(function (x) { if (bad[x.id]) b++; else if (S.done[x.id] && S.pts[x.id] > 0) c++; });
+    return { c: c, b: b };
+  }
+  function finOver() { if (S.fin && S.fin.over) return S.fin.over; return stopDone(finaleStop()) ? "win" : null; }
+  function finBanner(fs) {
+    var t;
+    if (fs.c === 0 && fs.b === 0) t = "Das Finale. Drei Fragen, keine Tipps, kein zweiter Versuch. Zwei richtige Antworten gewinnen. Bei zwei falschen bleibt das Versteck zu.";
+    else if (fs.c === 1 && fs.b === 0) t = "Eine richtig. Noch eine richtige Antwort, dann habt ihr gewonnen. Ein Fehler ist noch erlaubt.";
+    else if (fs.c === 0 && fs.b === 1) t = "Eine Frage ist weg. Noch ein letzter Versuch: Die letzten zwei Fragen müssen beide richtig sein.";
+    else t = "Eine richtig, eine verloren. Die letzte Frage entscheidet über alles.";
+    return '<div class="fin-banner" role="status">' + esc(t) + "</div>";
+  }
+  function finaleBody(s, p) {
+    var req = finReq(), fs = finState(), over = finOver(), h = "", cur = false, bad = (S.fin && S.fin.bad) || {};
+    req.forEach(function (st, i) {
+      var lab = '<span class="mono">Finalfrage ' + (i + 1) + " von " + req.length + "</span>";
+      if (bad[st.id]) h += '<section class="card lost">' + lab + "<p>" + esc(st.q) + '</p><div class="reveal"><b>Verloren</b><span>' + esc(st.reveal) + "</span></div></section>";
+      else if (S.done[st.id]) h += '<section class="card">' + lab + "<p>" + esc(st.q) + '</p><div class="reveal"><b>' + (S.pts[st.id] > 0 ? "Richtig, " + S.pts[st.id] + " Punkte" : "Nicht mehr nötig") + "</b><span>" + esc(st.reveal) + "</span></div></section>";
+      else if (!cur && !over) {
+        cur = true;
+        var m = S.msg[st.id];
+        h += '<section class="card step final">' + finBanner(fs) + lab + vizHTML(st.viz) + '<p class="q">' + esc(st.q) + "</p>";
+        h += '<label class="small muted" for="ans">Deine Antwort. Es zählt nur der erste Versuch.</label><input type="text" id="ans" data-step="' + st.id + '" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" value="' + esc(S.draft[st.id] || "") + '">';
+        h += '<div class="msg ' + (m ? m.k : "") + '">' + (m ? esc(m.t) : "") + "</div>";
+        h += '<div class="row"><button class="btn" data-act="check" data-step="' + st.id + '">Antwort abgeben</button></div></section>';
+      }
+    });
+    if (over === "lose") {
+      h += '<section class="card lose-final"><h2>Das Versteck bleibt verschlossen</h2><p class="muted">Zwei Fragen daneben. Aber Symbologen geben nie auf. Ihr könnt das Finale von vorn beginnen.</p><button class="btn" data-act="fin-retry">Finale noch einmal versuchen</button><button class="btn ghost" data-act="back">Zurück zur Tour</button></section>';
+    } else if (over === "win") {
+      h += '<section class="card seal-win win-final"><canvas id="fw" aria-hidden="true"></canvas>' + finaleSVG(true) + "<h2>Fall gelöst. Das Versteck ist gefunden.</h2>";
+      h += '<div class="power"><span class="mono">Superpower freigeschaltet</span><b>Die Superpower der vollkommenen Siegel</b><p class="small">Erde, Wasser, Feuer und Luft sind vereint. Illuminati-Feuerwerk für die ganze Familie!</p></div>';
+      h += '<p class="muted">' + esc(p.outro || "") + "</p>" + (JOKES[s.id] ? jokeHTML(JOKES[s.id]) : "");
+      h += '<p>Ihr habt <b>' + total() + " von " + maxPts() + " Punkten</b>. Der Fall Rom ist abgeschlossen.</p>";
+      h += '<button class="btn ghost" data-act="fw">Feuerwerk noch einmal</button><button class="btn" data-act="back">Weiter in der Tour</button></section>';
+      var bonus = p.steps.filter(function (x) { return x.bonus; });
+      if (bonus.length) h += stepCards(p, bonus);
     }
-    var shown = false;
-    p.steps.forEach(function (st, i) {
+    return h;
+  }
+  function finAnswer(id) {
+    var inp = document.getElementById("ans"), v = inp ? inp.value : "", st = STEPS[id];
+    S.draft[id] = v;
+    if (!norm(v)) { S.msg[id] = { k: "bad", t: "Erst was eintippen. Es zählt nur der erste Versuch." }; render(true); return; }
+    S.fin = S.fin || { bad: {}, over: null };
+    if (matches(v, st.accept)) { S.done[id] = true; S.pts[id] = 3; addNote(id); }
+    else S.fin.bad[id] = true;
+    var fs = finState();
+    if (fs.c >= 2) {
+      S.fin.over = "win";
+      finReq().forEach(function (x) { if (!S.done[x.id]) { S.done[x.id] = true; S.pts[x.id] = 0; addNote(x.id); } });
+      S.fwUntil = Date.now() + 9000;
+    } else if (fs.b >= 2) S.fin.over = "lose";
+    save(); render(true);
+    var res = document.querySelector(".win-final, .lose-final"); if (res && res.scrollIntoView) res.scrollIntoView({ block: "start" });
+  }
+  function finRetry() {
+    var ids = finReq().map(function (x) { return x.id; });
+    ids.forEach(function (id) { delete S.done[id]; delete S.pts[id]; delete S.hints[id]; delete S.draft[id]; delete S.msg[id]; });
+    S.notes = S.notes.filter(function (n) { return ids.indexOf(n.id) < 0; });
+    S.fin = null; save(); render();
+  }
+  var fwTok = 0;
+  function fireworks() {
+    var cv = document.getElementById("fw");
+    if (!cv || !(S.fwUntil > Date.now())) return;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var tok = ++fwTok, dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+    cv.width = w * dpr; cv.height = h * dpr;
+    var ctx = cv.getContext("2d"); if (!ctx) return; ctx.scale(dpr, dpr);
+    var ps = [], last = 0, cols = ["#d0a64f", "#ff6b4a", "#5fb0ff", "#7be0a5", "#f2f2f2", "#c58bff"];
+    function burst() {
+      var x = w * (0.15 + Math.random() * 0.7), y = h * (0.15 + Math.random() * 0.45), c = cols[Math.floor(Math.random() * cols.length)];
+      for (var i = 0; i < 46; i++) { var a = Math.random() * 6.283, v = 0.8 + Math.random() * 2.4; ps.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, l: 1, c: c }); }
+    }
+    function frame(t) {
+      if (tok !== fwTok || !document.body.contains(cv)) return;
+      var live = S.fwUntil > Date.now();
+      if (!live && !ps.length) { ctx.clearRect(0, 0, w, h); return; }
+      ctx.globalCompositeOperation = "destination-out"; ctx.fillStyle = "rgba(0,0,0,0.22)"; ctx.fillRect(0, 0, w, h);
+      ctx.globalCompositeOperation = "source-over";
+      if (live && t - last > 380) { burst(); last = t; }
+      ps = ps.filter(function (q) { return q.l > 0; });
+      ps.forEach(function (q) { q.x += q.vx; q.y += q.vy; q.vy += 0.04; q.vx *= 0.99; q.l -= 0.014; ctx.globalAlpha = Math.max(q.l, 0); ctx.fillStyle = q.c; ctx.beginPath(); ctx.arc(q.x, q.y, 2.2, 0, 6.283); ctx.fill(); });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function stepCards(p, list) {
+    var h = "", shown = false;
+    list.forEach(function (st) {
+      var i = p.steps.indexOf(st);
       if (S.done[st.id]) {
         h += '<section class="card"><span class="mono">' + qLabel(st, i, p, false) + "</span><p>" + esc(st.q) + '</p><div class="reveal"><b>' + (S.pts[st.id] > 0 ? "Läuft, " + S.pts[st.id] + (S.pts[st.id] === 1 ? " Punkt" : " Punkte") : "Aufgelöst") + "</b><span>" + esc(st.reveal) + "</span></div></section>";
       } else if (!shown) {
@@ -623,6 +713,22 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
         h += "</section>";
       }
     });
+
+    return h;
+  }
+  function viewPuzzle() {
+    var s = STOPS[S.view], p = s.puzzle, locked = s.finale && sealsHeld().length < 4, h = "";
+    h += '<button class="btn ghost back" data-act="back">Zurück zur Tour</button>';
+    h += '<section class="card hero"><div class="tags">' + (s.seal ? '<span class="tag ' + s.seal + '">Siegel ' + ELEM[s.seal].name + "</span>" : s.finale ? '<span class="tag finale">Finale</span>' : '<span class="tag">' + (bonusOnly(s) ? "Bonus-Rätsel" : "Rätsel") + "</span>") + "</div>";
+    h += "<h2>" + esc(p.title) + '</h2><p class="muted">' + esc(s.name) + ", " + esc(s.where) + "</p>";
+    h += '<div class="scene">' + scene(s) + '</div><p class="letter">' + esc(p.intro) + "</p></section>";
+    h += knowHTML(s);
+    if (locked) {
+      h += '<section class="card locked"><p>Das Finale ist noch zu. Erst alle vier Siegel holen. Es fehlen noch ' + (4 - sealsHeld().length) + ".</p></section>";
+      return h;
+    }
+    if (s.finale) return h + finaleBody(s, p);
+    h += stepCards(p, p.steps);
     if (stopDone(s)) {
       h += '<section class="card seal-win">';
       if (s.seal) h += sealSVG(s.seal, true) + "<h2>Siegel der " + ELEM[s.seal].name + "</h2>";
@@ -641,6 +747,7 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
     document.getElementById("app").innerHTML = h;
     renderTop(); renderTabs();
     sc.scrollTop = keepScroll ? y : 0;
+    fireworks();
   }
 
   /* ---------- Aktionen ---------- */
@@ -666,15 +773,18 @@ ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column
     else if (a === "hint") { var id = el.getAttribute("data-step"); var inp = document.getElementById("ans"); if (inp) S.draft[id] = inp.value; S.hints[id] = (S.hints[id] || 0) + 1; save(); render(true); }
     else if (a === "check") { checkAnswer(el.getAttribute("data-step")); }
     else if (a === "giveup") { var g = el.getAttribute("data-step"); S.done[g] = true; S.pts[g] = 0; addNote(g); save(); render(true); }
+    else if (a === "fin-retry") { finRetry(); }
+    else if (a === "fw") { S.fwUntil = Date.now() + 9000; render(true); }
     else if (a === "reset-ask") { S.resetAsk = true; render(true); }
     else if (a === "reset-no") { S.resetAsk = false; render(true); }
-    else if (a === "reset-yes") { S.done = {}; S.pts = {}; S.notes = []; S.hints = {}; S.msg = {}; S.draft = {}; S.opened = false; S.resetAsk = false; save(); render(); }
+    else if (a === "reset-yes") { S.done = {}; S.pts = {}; S.notes = []; S.hints = {}; S.msg = {}; S.draft = {}; S.fin = null; S.opened = false; S.resetAsk = false; save(); render(); }
   });
   document.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && e.target && e.target.id === "pin") { e.preventDefault(); tryPin(); return; }
     if (e.key === "Enter" && e.target && e.target.id === "ans") { e.preventDefault(); checkAnswer(e.target.getAttribute("data-step")); }
   });
   function checkAnswer(id) {
+    if (finReq().some(function (x) { return x.id === id; })) { finAnswer(id); return; }
     var inp = document.getElementById("ans"), v = inp ? inp.value : "", st = STEPS[id];
     S.draft[id] = v;
     if (!norm(v)) { S.msg[id] = { k: "bad", t: "Erst mal was eintippen." }; render(true); return; }
