@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Fremdwörter-Trainer Klasse 7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: Lernheft-App. Kopf mit Fortschritt, darunter 4 Blöcke mit je 6–10 Aufgaben-Kacheln; Aufgaben öffnen sich als Karte. */
+:root{
+  --bg:#f3f4f6; --surface:#ffffff; --ink:#1c2230; --muted:#5d6574; --line:#dde0e6;
+  --brand:#2c4a7a; --brand-ink:#ffffff; --hl:rgba(255,206,40,.6); --mark:#ffcf2e;
+  --good:#12814f; --good-bg:#e1f5ea; --bad:#c93030; --bad-bg:#fde7e7;
+  --b1:var(--brand); --b2:var(--brand); --b3:var(--brand); --b4:var(--brand);
+  --font-d:'IBM Plex Sans',system-ui,sans-serif; --font-b:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14171d; --surface:#1d2129; --ink:#e8eaee; --muted:#a0a7b4; --line:#323844;
+    --brand:#8fb0e6; --brand-ink:#0d1230; --hl:rgba(255,206,40,.33); --mark:#ffd84a;
+    --good:#47d394; --good-bg:#11332a; --bad:#ff8080; --bad-bg:#3b1b22;
+    --b1:var(--brand); --b2:var(--brand); --b3:var(--brand); --b4:var(--brand); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14171d; --surface:#1d2129; --ink:#e8eaee; --muted:#a0a7b4; --line:#323844;
+  --brand:#8fb0e6; --brand-ink:#0d1230; --hl:rgba(255,206,40,.33); --mark:#ffd84a;
+  --good:#47d394; --good-bg:#11332a; --bad:#ff8080; --bad-bg:#3b1b22;
+  --b1:var(--brand); --b2:var(--brand); --b3:var(--brand); --b4:var(--brand); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:8px}
+.wrap{max-width:860px;margin:0 auto;padding:16px 16px 64px}
+h1,h2,h3{font-family:var(--font-d);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(26px,5vw,32px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:19px;font-weight:600}
+h3{font-size:17px;font-weight:600}
+.hl{font-weight:inherit}
+.muted{color:var(--muted)}
+header.top{display:grid;gap:14px;padding:8px 0 18px}
+.kicker{font-weight:500;font-size:14px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.stat b{display:block;font-family:var(--font-d);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{font-size:13px;color:var(--muted)}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .3s}
+nav.tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px;margin-bottom:18px}
+nav.tabs button{flex:1;border:0;background:transparent;padding:8px 6px;border-radius:6px;font-weight:600;color:var(--muted)}
+nav.tabs button[aria-selected="true"]{background:var(--brand);color:var(--brand-ink)}
+.next{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:8px;padding:14px 16px;margin-bottom:22px}
+.btn{border:0;border-radius:8px;padding:10px 16px;font-weight:600;background:var(--brand);color:var(--brand-ink)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.small{padding:7px 12px;font-size:15px}
+.btn:disabled{opacity:.45;cursor:default}
+section.block{margin-bottom:26px}
+.block-h{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;padding-left:12px;border-left:5px solid var(--c)}
+.block-h p{margin:0;font-size:14px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.tile{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;grid-template-columns:38px 1fr;gap:4px 10px;align-items:start;transition:transform .12s,border-color .12s}
+.tile:hover{border-color:var(--c)}
+.tile .no{grid-row:span 2;width:38px;height:38px;border-radius:6px;display:grid;place-items:center;font-family:var(--font-d);font-weight:600;background:var(--bg);color:var(--muted);border:1px solid var(--line);font-variant-numeric:tabular-nums}
+.tile.done{border-color:var(--good);background:var(--good-bg)}
+.tile.done .no{background:var(--good);color:var(--surface);border-color:var(--good)}
+.tile.done .no svg{width:22px;height:22px}
+.tile.done .st{color:var(--good);font-weight:600}
+.tile.done .t{text-decoration:none}
+.tile .t{font-weight:600;line-height:1.25}
+.tile .d{font-size:14px;color:var(--muted);line-height:1.35}
+.tile .st{grid-column:2;font-size:13px;color:var(--muted);min-height:18px;font-variant-numeric:tabular-nums}
+.tile .st .off{color:var(--line)}
+/* Quiz */
+.qhead{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.qhead .grow{flex:1;min-width:140px}
+.qmeta{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);font-weight:700;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:16px}
+.prompt{font-size:19px;line-height:1.45;font-weight:500}
+.fw{font-family:var(--font-d);font-weight:700}
+.gap{display:inline-block;min-width:110px;border-bottom:3px solid var(--brand);margin:0 3px;height:1.1em;vertical-align:-2px}
+.opts{display:grid;gap:9px}
+.opt{text-align:left;padding:12px 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-weight:500;line-height:1.35}
+.opt:hover:not(:disabled){border-color:var(--brand)}
+.opt.ok{border-color:var(--good);background:var(--good-bg);color:var(--good)}
+.opt.no{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.opt:disabled{cursor:default}
+.opts.two{grid-template-columns:1fr 1fr}
+.opts.three{grid-template-columns:repeat(3,1fr)}
+.opts.two .opt,.opts.three .opt{text-align:center}
+.typebox{display:flex;gap:8px;flex-wrap:wrap}
+.typebox input{flex:1;min-width:180px;padding:11px 13px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:18px;font-weight:500}
+.typebox input:focus{border-color:var(--brand);outline:none}
+.typebox input.ok{border-color:var(--good);background:var(--good-bg)}
+.typebox input.no{border-color:var(--bad);background:var(--bad-bg)}
+.gapword{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:28px;font-weight:700;letter-spacing:.12em;word-break:break-all}
+.tiles{display:flex;gap:6px;flex-wrap:wrap}
+.tiles span{width:38px;height:42px;display:grid;place-items:center;border-radius:8px;background:var(--bg);border:2px solid var(--line);font-weight:800;font-size:20px}
+.feedback{border-radius:12px;padding:12px 14px;font-size:16px;line-height:1.45}
+.feedback.ok{background:var(--good-bg);border-left:5px solid var(--good)}
+.feedback.no{background:var(--bad-bg);border-left:5px solid var(--bad)}
+.feedback b.v{display:block;font-family:var(--font-d);font-size:17px;margin-bottom:2px}
+.chip{display:inline-block;font-size:12px;font-weight:800;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);vertical-align:2px;white-space:nowrap}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row.end{justify-content:flex-end}
+.hint{font-size:15px;color:var(--muted)}
+.speak{display:inline-flex;align-items:center;gap:8px}
+.speak svg{width:20px;height:20px}
+.match{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.match .col{display:grid;gap:8px;align-content:start}
+.match .opt{font-size:15px;padding:10px 12px}
+.match .opt.sel{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,var(--bg))}
+.flash{min-height:190px;display:grid;place-items:center;text-align:center;border:2px dashed var(--line);border-radius:16px;padding:20px;gap:8px}
+.flash .big{font-family:var(--font-d);font-size:30px;font-weight:600}
+.timer{font-family:var(--font-d);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums;min-width:56px;text-align:right}
+.timer.low{color:var(--bad)}
+.result{text-align:center;display:grid;gap:12px;justify-items:center}
+.result .pct{font-family:var(--font-d);font-size:48px;font-weight:600;line-height:1}
+.result .stars{font-size:34px;color:var(--mark);letter-spacing:6px}
+.result .stars .off{color:var(--line)}
+.grade{font-family:var(--font-d);font-size:20px;font-weight:600;padding:6px 16px;border-radius:12px;background:var(--bg);border:2px solid var(--line)}
+.wronglist{width:100%;text-align:left;display:grid;gap:6px;margin-top:6px}
+.wronglist div{background:var(--bg);border-radius:10px;padding:8px 12px;font-size:15px}
+/* Wortliste */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filters input{flex:1;min-width:180px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface)}
+.filters button{border:2px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-weight:700;font-size:14px}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.words{display:grid;gap:6px}
+.wrow{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
+.wrow .w{font-weight:600;font-size:18px}
+.wrow .w small{font-weight:600;color:var(--muted);font-size:14px}
+.wrow .m{grid-column:1;font-size:15px;color:var(--muted);line-height:1.35}
+.wrow .act{grid-row:1 / span 2;grid-column:2;display:flex;gap:6px;align-items:center}
+.iconbtn{border:2px solid var(--line);background:var(--bg);border-radius:10px;width:40px;height:40px;display:grid;place-items:center}
+.iconbtn svg{width:20px;height:20px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-left:6px;vertical-align:1px}
+.dot.prob{background:var(--bad)}
+.dot.sure{background:var(--good)}
+/* Tipps */
+.tips{display:grid;gap:12px}
+.tip{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.tip h3{margin-bottom:6px}
+.tip p,.tip ul{margin:0;font-size:16px}
+.tip ul{padding-left:20px}
+.tip li{margin:2px 0}
+footer{margin-top:30px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+@media (max-width:520px){
+  .stats{grid-template-columns:repeat(3,1fr);gap:6px}
+  .stat b{font-size:20px}
+  .prompt{font-size:18px}
+  .card{padding:16px}
+  .match{grid-template-columns:1fr}
+  .opts.three{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* ---------- Wortdaten: Wort | Wortart | Artikel | Herkunft | Bedeutung | Beispielsatz (~ = Wort) | erlaubte Schreibvarianten ---------- */
+const RAW = `adäquat|A||lat|angemessen, passend|Deine Antwort auf die Frage war völlig ~.|
+Aggression|N|die|lat|feindseliges, angreifendes Verhalten|Nach dem Foul entlud sich seine ganze ~ auf dem Spielfeld.|
+Akkusativ|N|der|lat|der 4. Fall (Wen oder was?)|In „Ich sehe den Hund“ steht „den Hund“ im ~.|
+Alternative|N|die|lat|eine andere Möglichkeit, zwischen der man wählen kann|Wenn es regnet, ist das Kino eine gute ~.|
+ambivalent|A||lat|zwiespältig; man hat gleichzeitig gegensätzliche Gefühle|Meine Gefühle zum Umzug sind ~: Ich freue mich, bin aber auch traurig.|
+antizipieren|V||lat|etwas vorwegnehmen, vorausahnen|Ein guter Torwart kann den Schuss ~.|
+Apostroph|N|der|gr|Auslassungszeichen (’), z. B. in „geht’s“|In „Wie geht’s?“ ersetzt der ~ das „e“ von „es“.|
+Apotheke|N|die|gr|Geschäft, in dem man Medikamente bekommt|Mit dem Rezept vom Arzt gehe ich in die ~.|
+Apparat|N|der|lat|technisches Gerät|Mein Opa nennt jedes technische Gerät einfach ~.|
+Appetit|N|der|lat|Lust auf Essen|Nach dem Training hatte ich großen ~ auf Nudeln.|
+applaudieren|V||lat|Beifall klatschen|Nach dem Konzert begann das Publikum laut zu ~.|
+Applaus|N|der|lat|Beifall, Klatschen|Die Band bekam am Ende tosenden ~.|
+Arroganz|N|die|lat|Überheblichkeit; man hält sich für etwas Besseres|Seine ~ machte ihn in der Klasse unbeliebt.|
+Athlet|N|der|gr|Sportler, Wettkämpfer|Ein ~ muss jeden Tag hart trainieren.|
+Atmosphäre|N|die|gr|Stimmung; auch: Lufthülle der Erde|Beim Lagerfeuer herrschte eine gemütliche ~.|
+Attraktion|N|die|lat|etwas Besonderes, das viele Menschen anzieht|Die neue Achterbahn ist die größte ~ im Freizeitpark.|
+Automobil|N|das||Auto (älterer, feierlicher Ausdruck)|Früher sagte man statt Auto noch ~.|
+Baguette|N|das|fr|langes, dünnes französisches Weißbrot|Zum Frühstück in Paris gab es ein frisches ~.|
+balancieren|V||fr|das Gleichgewicht halten|Auf dem schmalen Baumstamm musste ich vorsichtig ~.|
+Biografie|N|die|gr|Lebensbeschreibung eines Menschen|Ich lese gerade eine ~ über Albert Einstein.|Biographie
+blamieren|V||fr|sich lächerlich machen, bloßstellen|Beim Vortrag will ich mich auf keinen Fall ~.|
+Buffet|N|das|fr|Tisch mit Speisen, von dem sich jeder selbst nimmt|Auf der Feier konnte sich jeder am ~ bedienen.|Büfett
+Chauffeur|N|der|fr|Fahrer, der andere beruflich fährt|Der Filmstar ließ sich von seinem ~ abholen.|
+Chirurg|N|der|gr|Arzt, der operiert|Der ~ operierte das gebrochene Bein.|
+Container|N|der|en|großer Behälter für Transport oder Müll|Das Altglas kommt in den grünen ~.|
+Debatte|N|die|fr|Streitgespräch, Diskussion|Im Bundestag gab es eine lange ~ über das neue Gesetz.|
+Debüt|N|das|fr|erster öffentlicher Auftritt|Mit 17 Jahren gab die Spielerin ihr ~ in der Nationalmannschaft.|
+Delfin|N|der|gr|kluges Meeressäugetier|Im Meer sprang plötzlich ein ~ aus dem Wasser.|Delphin
+Demokratie|N|die|gr|Staatsform, in der das Volk durch Wahlen mitbestimmt|In einer ~ wählen die Bürger ihre Regierung.|
+Detail|N|das|fr|Einzelheit|Der Detektiv achtete auf jedes kleine ~.|
+Dialog|N|der|gr|Gespräch zwischen zwei oder mehr Personen|Im Theaterstück gibt es einen spannenden ~ zwischen den beiden Figuren.|
+downloaden|V||en|aus dem Internet herunterladen|Ich muss die App erst ~, bevor ich spielen kann.|
+echauffieren|V||fr|sich aufregen, sich empören|Über jede Kleinigkeit kann sich mein Onkel ~.|
+Engagement|N|das|fr|Einsatz, Hingabe für eine Sache|Für ihr ~ in der Schülervertretung bekam sie ein großes Lob.|
+Etage|N|die|fr|Stockwerk|Unsere Wohnung liegt in der dritten ~.|
+Euphorie|N|die|gr|überschwängliche Begeisterung, Hochstimmung|Nach dem Sieg im Finale war die ~ riesig.|
+Fairness|N|die|en|anständiges, gerechtes Verhalten|Beim Sport ist ~ wichtiger als der Sieg.|
+finanziell|A|||das Geld betreffend|Die Sorgen des Vereins sind vor allem ~.|
+Fitness|N|die|en|körperliche Leistungsfähigkeit|Durch regelmäßiges Joggen verbessere ich meine ~.|
+fragil|A||lat|zerbrechlich, empfindlich|Vorsicht mit der Glasvase, sie ist sehr ~.|
+frenetisch|A||gr|stürmisch, rasend (vor Begeisterung)|Der Jubel der Fans im Stadion war ~.|
+Genie|N|das|fr|außergewöhnlich begabter Mensch|Mozart gilt als musikalisches ~.|
+Hierarchie|N|die|gr|Rangordnung (wer steht über wem)|In einem Wolfsrudel gibt es eine klare ~.|
+Hygiene|N|die|gr|Sauberkeit zum Schutz der Gesundheit|Händewaschen ist ein wichtiger Teil der ~.|
+Hypothese|N|die|gr|Vermutung, die noch bewiesen werden muss|Vor dem Experiment stellten wir eine ~ auf.|
+Idee|N|die|gr|Einfall, Gedanke|Mir kam plötzlich eine geniale ~.|
+Indikativ|N|der|lat|Wirklichkeitsform des Verbs (z. B. „er geht“)|„Sie spielt Fußball“ steht im ~, nicht im Konjunktiv.|
+Infinitiv|N|der|lat|Grundform des Verbs (z. B. „gehen“)|Der ~ von „ich lief“ heißt „laufen“.|
+Ingenieur|N|der|fr|Fachmann, der Maschinen, Brücken oder Technik plant|Die neue Brücke wurde von einem ~ geplant.|
+Interesse|N|das|lat|Neugier, Aufmerksamkeit für etwas|Mein ~ an Geschichte ist sehr groß.|
+Interview|N|das|en|Befragung, z. B. durch eine Reporterin|Nach dem Spiel gab der Trainer ein ~.|
+Journalist|N|der|fr|jemand, der für Zeitung, Radio oder Fernsehen berichtet|Ein ~ schrieb einen Artikel über unsere Schule.|
+Karriere|N|die|fr|beruflicher Aufstieg, Laufbahn|Der Fußballer beendete mit 35 seine ~.|
+Karussell|N|das|fr|Fahrgeschäft, das sich im Kreis dreht|Auf dem Jahrmarkt fuhren die Kinder ~.|
+Kolonie|N|die|lat|von einem fremden Land beherrschtes Gebiet; auch: Gruppe von Tieren|Australien war früher eine britische ~.|
+Kommandeur|N|der|fr|Befehlshaber einer Truppe|Der ~ gab den Soldaten einen Befehl.|
+Kondition|N|die|lat|Ausdauer, körperliche Leistungsfähigkeit|Für einen Marathon braucht man eine sehr gute ~.|
+Konjunktion|N|die|lat|Bindewort (z. B. und, weil, dass)|Das Wort „weil“ ist eine ~.|
+Konkurrenz|N|die|lat|Wettbewerb; die Gegner, mit denen man sich misst|Im Finale war die ~ besonders stark.|
+konservieren|V||lat|haltbar machen, erhalten|Man kann Gurken in Essig ~.|
+Konversation|N|die|lat|Unterhaltung, Gespräch|Im Englischunterricht üben wir eine ~ am Flughafen.|
+korpulent|A||lat|beleibt, dick|Der Weihnachtsmann wird meistens ziemlich ~ dargestellt.|
+Labyrinth|N|das|gr|Irrgarten|Im Maisfeld haben wir uns im ~ verlaufen.|
+Laptop|N|der|en|tragbarer, aufklappbarer Computer|Für das Referat brauche ich meinen ~.|
+Medaille|N|die|fr|Auszeichnung (Gold, Silber, Bronze)|Bei den Olympischen Spielen gewann sie eine goldene ~.|
+Methode|N|die|gr|planmäßige Vorgehensweise|Mit dieser ~ lerne ich Vokabeln viel schneller.|
+Mythos|N|der|gr|Sage aus alter Zeit; auch: weit verbreiteter Irrglaube|Dass Spinat besonders viel Eisen enthält, ist ein ~.|
+Niveau|N|das|fr|Stufe, Rang, Qualitätsstand|Das ~ in der Champions League ist sehr hoch.|
+Nonsens|N|der|en|Unsinn, Quatsch|Was du da erzählst, ist doch völliger ~!|
+Opposition|N|die|lat|Gegenseite; im Parlament die Parteien, die nicht regieren|Die ~ kritisierte den Plan der Regierung.|
+Orthografie|N|die|gr|Rechtschreibung|In der Deutscharbeit wird auch die ~ bewertet.|Orthographie
+Panik|N|die|gr|plötzliche, sehr große Angst|Als der Feueralarm losging, brach ~ aus.|
+Partizip|N|das|lat|Mittelwort des Verbs (z. B. „gelaufen“, „lachend“)|„Gespielt“ ist das ~ II von „spielen“.|
+Philosophie|N|die|gr|Nachdenken über die großen Fragen des Lebens|Sokrates ist ein berühmter Name in der ~.|
+phlegmatisch|A||gr|träge, kaum aus der Ruhe zu bringen|Unser Kater ist so ~, dass er nicht mal für Futter aufsteht.|
+Prophylaxe|N|die|gr|Vorbeugung (gegen Krankheiten)|Zähneputzen ist die beste ~ gegen Karies.|
+Pyjama|N|der||Schlafanzug|Am Sonntag blieb ich bis mittags im ~.|
+Qualität|N|die|lat|Güte, Beschaffenheit|Die Schuhe sind teuer, aber die ~ ist super.|
+Quiz|N|das|en|Frage-und-Antwort-Spiel|Wer gewinnt heute das ~ über Fremdwörter?|
+Rallye|N|die||Autorennen über Landstraßen; auch: Schnitzeljagd|In der Stadt machten wir eine ~ mit kniffligen Fragen.|
+recherchieren|V||fr|Informationen suchen und sammeln|Für mein Referat muss ich im Internet ~.|
+Regisseur|N|der|fr|Leiter bei Film- oder Theaterproduktionen|Der ~ rief: „Kamera läuft!“|
+rekapitulieren|V||lat|zusammenfassend wiederholen|Lass uns zum Schluss noch einmal das Wichtigste ~.|
+resolut|A||lat|entschlossen, energisch|Unsere Klassenlehrerin ist sehr ~ und lässt sich nichts gefallen.|
+reüssieren|V||fr|Erfolg haben|Mit seinem ersten Buch konnte der Autor sofort ~.|
+Rhabarber|N|der||Pflanze mit sauren Stangen, z. B. für Kuchen|Oma backt im Frühling Kuchen mit ~.|
+Rhetorik|N|die|gr|Redekunst|Wer gute ~ beherrscht, kann andere leichter überzeugen.|
+Rhythmus|N|der|gr|Takt, regelmäßige Wiederholung|Beim Tanzen muss man den ~ der Musik spüren.|
+rudimentär|A||lat|nur in Ansätzen vorhanden, unvollständig|Meine Französischkenntnisse sind leider nur ~.|
+Saison|N|die|fr|bestimmter Zeitabschnitt im Jahr (z. B. Spielzeit, Erntezeit)|Erdbeeren haben im Juni ~.|
+Slogan|N|der|en|Werbespruch, Motto|Jede Firma wünscht sich einen ~, den alle kennen.|
+Stewardess|N|die|en|Flugbegleiterin|Die ~ brachte uns im Flugzeug Getränke.|
+Strophe|N|die|gr|Abschnitt eines Gedichts oder Liedes|Das Gedicht hat vier Verse in jeder ~.|
+suggerieren|V||lat|jemandem etwas einreden, einen Eindruck erwecken|Die Werbung will uns ~, dass wir das Produkt unbedingt brauchen.|
+Telefon|N|das|gr|Gerät zum Sprechen über weite Entfernungen|Das ~ klingelte mitten in der Nacht.|
+Tendenz|N|die|lat|Entwicklung in eine bestimmte Richtung, Neigung|Die Zahl der Schüler zeigt eine steigende ~.|
+Territorium|N|das|lat|Gebiet, Revier|Der Hund verteidigt sein ~ gegen fremde Katzen.|
+Theater|N|das|gr|Ort, an dem Schauspieler Stücke aufführen|Am Wochenende gehen wir ins ~.|
+Thermometer|N|das|gr|Gerät zum Messen der Temperatur|Das ~ zeigt heute minus fünf Grad.|
+Toast|N|der|en|geröstete Weißbrotscheibe; auch: Trinkspruch|Zum Frühstück esse ich gern einen ~ mit Marmelade.|
+Tournee|N|die|fr|Reise mit Auftritten in vielen Städten|Die Band geht im Sommer auf ~ durch Europa.|
+Triumph|N|der|lat|großer Sieg, großer Erfolg|Der Sieg gegen den Meister war ein echter ~.|
+Variante|N|die|lat|Abwandlung, andere Form einer Sache|Von diesem Spiel gibt es eine leichtere ~ für Kinder.|
+Veteran|N|der|lat|ehemaliger Soldat; auch: jemand mit langer Erfahrung|Der alte ~ erzählte von seiner Zeit in der Armee.|`;
+
+const W = RAW.trim().split('\n').map(l=>{
+  const [w,t,a,o,m,s,alt] = l.split('|');
+  return {w,t,a,o,m,s,alts:alt?alt.split(','):[]};
+});
+const BY = Object.fromEntries(W.map(x=>[x.w,x]));
+const ORIG = {lat:'Latein',gr:'Griechisch',fr:'Französisch',en:'Englisch'};
+const TYPE = {N:'Nomen',V:'Verb',A:'Adjektiv'};
+
+const FAMILY = [['aggressiv','Aggression'],['arrogant','Arroganz'],['demokratisch','Demokratie'],['Philosoph','Philosophie'],['Journalismus','Journalist'],['hygienisch','Hygiene'],['euphorisch','Euphorie'],['panisch','Panik'],['rhythmisch','Rhythmus'],['triumphieren','Triumph'],['konkurrieren','Konkurrenz'],['debattieren','Debatte'],['telefonieren','Telefon'],['qualitativ','Qualität'],['theatralisch','Theater'],['mythisch','Mythos'],['Biograf','Biografie'],['interessant','Interesse'],['Apotheker','Apotheke'],['athletisch','Athlet'],['methodisch','Methode'],['Konserve','konservieren'],['Recherche','recherchieren'],['Regie','Regisseur'],['Finanzen','finanziell'],['attraktiv','Attraktion'],['Balance','balancieren'],['Blamage','blamieren'],['hypothetisch','Hypothese'],['hierarchisch','Hierarchie'],['Applaus','applaudieren'],['dialogisch','Dialog']];
+
+const GRAMMAR_Q = [
+  ['„gelaufen“ und „lachend“ sind Formen vom …','Partizip'],
+  ['„weil“, „und“ und „dass“ sind Beispiele für eine …','Konjunktion'],
+  ['„schwimmen“ ist der … von „du schwammst“.','Infinitiv'],
+  ['In „Ich kaufe einen Ball“ steht „einen Ball“ im …','Akkusativ'],
+  ['„Er spielt Gitarre“ steht im … (Wirklichkeitsform).','Indikativ'],
+  ['Das Zeichen in „Wie geht’s?“ heißt …','Apostroph'],
+  ['Ein Gedicht ist in Abschnitte gegliedert. Ein Abschnitt heißt …','Strophe'],
+  ['Das Fremdwort für „Rechtschreibung“ lautet …','Orthografie'],
+  ['Ein Gespräch zwischen zwei Figuren in einer Geschichte nennt man …','Dialog'],
+  ['Die Kunst, gut und überzeugend zu reden, heißt …','Rhetorik']
+];
+const GRAMMAR = ['Partizip','Konjunktion','Infinitiv','Akkusativ','Indikativ','Apostroph','Strophe','Orthografie','Dialog','Rhetorik'];
+const HARD = ['adäquat','ambivalent','antizipieren','echauffieren','frenetisch','phlegmatisch','resolut','reüssieren','rudimentär','suggerieren','rekapitulieren','korpulent','fragil','Prophylaxe','Hypothese','Hierarchie','Tendenz','Opposition'];
+
+/* ---------- Helfer ---------- */
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const sample=(a,n)=>shuffle(a).slice(0,n);
+const range=(a,b)=>W.filter(x=>{const c=x.w[0].toUpperCase();return c>=a&&c<=b;});
+const art = x=> x.a ? x.a+' ' : '';
+const SPK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>';
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const hasTTS = 'speechSynthesis' in window;
+function speak(t){ if(!hasTTS) return; try{ const u=new SpeechSynthesisUtterance(t); u.lang='de-DE'; u.rate=.85; const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith('de')); if(v)u.voice=v; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){} }
+if(hasTTS){ try{speechSynthesis.getVoices();}catch(e){} }
+
+/* ---------- Speichern ---------- */
+const KEY='fw7_trainer_v1';
+let S={best:{},stats:{}};
+try{ const d=JSON.parse(localStorage.getItem(KEY)); if(d&&d.best) S=d; }catch(e){}
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
+function track(w,ok){ if(!w) return; const s=S.stats[w]||(S.stats[w]={r:0,w:0}); ok?s.r++:s.w++; }
+const isSure = w=>{const s=S.stats[w];return s&&s.r>=2&&s.r>s.w*2;};
+const isProb = w=>{const s=S.stats[w];return s&&s.w>0&&s.w>=s.r;};
+
+/* ---------- Falsche Schreibweisen erzeugen ---------- */
+function misspell(x){
+  const w=x.w, bad=new Set([w,...x.alts]), out=new Set();
+  const R=[
+    s=>s.replace(/([bcdfgklmnprstz])\1/,'$1'),
+    s=>{const m=/[aeiouäöüy]([bdfgklmnprt])[aeiouäöüy]/.exec(s.slice(1)); if(!m) return null; const i=m.index+2; return s.slice(0,i)+s[i]+s.slice(i);},
+    s=>s.replace('Ph','F'), s=>s.replace('ph','f'), s=>s.replace('Th','T'), s=>s.replace('th','t'),
+    s=>s.replace('Rh','R'), s=>s.replace('rh','r'), s=>s.replace('y','ü'), s=>s.replace('y','i'),
+    s=>s.replace('ie','i'), s=>s.replace(/i(?!e)/,'ie'), s=>s.replace(/eur$/,'ör'), s=>s.replace('eu','oi'),
+    s=>s.replace('ou','u'), s=>s.replace(/ee$/,'e'), s=>s.replace(/^Ch/,'Sch'), s=>s.replace(/([^s])ch/,'$1sch'),
+    s=>s.replace('Qu','Kw'), s=>s.replace('qu','kw'), s=>s.replace('ai','ä'), s=>s.replace(/eau$/,'o'),
+    s=>s.replace('aille','aije'), s=>s.replace(/age$/,'asche'), s=>s.replace(/ette$/,'ett'), s=>s.replace(/^C/,'K'),
+    s=>s.replace(/c(?!h)/,'k'), s=>s.replace('V','W'), s=>s.replace('v','w'), s=>s.replace('z','ts'),
+    s=>s.replace('ä','e'), s=>s.replace(/f/,'ph'), s=>s.replace(/([^s])t(?!h)/,'$1th'), s=>s.replace(/ss$/,'s')
+  ];
+  R.forEach(r=>{const v=r(w); if(v&&!bad.has(v)) out.add(v);});
+  const arr=shuffle([...out]); let g=0;
+  while(arr.length<3&&g++<60){const i=1+Math.floor(Math.random()*(w.length-2));const v=w.slice(0,i)+w[i+1]+w[i]+w.slice(i+2);if(!bad.has(v)&&!arr.includes(v))arr.push(v);}
+  return arr.slice(0,3);
+}
+/* Lückenwort */
+function gapify(w,mode){
+  let segs=[];
+  if(mode==='double'){
+    for(const m of w.matchAll(/([bcdfgklmnprstz])\1/g)) segs.push({i:m.index,l:2});
+    const single=[...w.slice(1).matchAll(/[aeiouäöüy]([bdfgklmnprt])(?=[aeiouäöüy])/g)].map(m=>({i:m.index+2,l:1}))
+      .filter(s=>!segs.some(d=>Math.abs(d.i-s.i)<3));
+    if(single.length) segs.push(shuffle(single)[0]);
+    segs.sort((a,b)=>b.i-a.i);
+    let s=w; segs.forEach(g=>{s=s.slice(0,g.i)+'◻'+s.slice(g.i+g.l);}); return s;
+  }
+  const ms=[...w.matchAll(/eau|rh|th|ph|ch|qu|ai|ou|eu|ie|ee|y|([bcdfgklmnprstz])\1/gi)].map(m=>({i:m.index,l:m[0].length}));
+  segs=shuffle(ms).slice(0,2);
+  if(!segs.length){const p=shuffle([...Array(w.length-1).keys()].map(k=>k+1)).slice(0,2);segs=p.map(i=>({i,l:1}));}
+  const c=[...w]; segs.forEach(g=>{for(let k=g.i;k<g.i+g.l;k++)c[k]='_';}); return c.join('');
+}
+
+/* ---------- Fragetypen ---------- */
+const sameType=(x,pool)=>{const p=(pool||W).filter(y=>y.w!==x.w&&y.t===x.t);return p.length>=3?p:(pool||W).filter(y=>y.w!==x.w);};
+const expl = x=>`<b class="v">${esc(art(x)+x.w)}</b>${esc(x.m)}${x.o?` <span class="chip">${ORIG[x.o]}</span>`:''}`;
+const sentenceGap = x=>esc(x.s).replace('~','<span class="gap" aria-label="Lücke"></span>');
+
+const qMeaning = x=>({k:'mc',word:x.w,prompt:`Was bedeutet <span class="fw hl">${esc(x.w)}</span>?`,options:shuffle([x.m,...sample(sameType(x),3).map(y=>y.m)]),answer:x.m,explain:expl(x)});
+const qWord = (x,pool)=>({k:'mc',word:x.w,prompt:`Welches Fremdwort bedeutet: <i>„${esc(x.m)}“</i>?`,options:shuffle([x.w,...sample(sameType(x,pool),3).map(y=>y.w)]),answer:x.w,explain:expl(x)});
+const qCloze = (x,pool)=>({k:'mc',word:x.w,prompt:sentenceGap(x),sub:'Welches Wort gehört in die Lücke?',options:shuffle([x.w,...sample(sameType(x,pool),3).map(y=>y.w)]),answer:x.w,explain:expl(x)+`<br><i>${esc(x.s.replace('~',x.w))}</i>`});
+const qClozeType = x=>({k:'type',word:x.w,prompt:sentenceGap(x),sub:`Gesucht: <i>${esc(x.m)}</i>`,answer:x.w,alts:x.alts,explain:expl(x)});
+const qTF = x=>{const t=Math.random()<.5;const m=t?x.m:sample(sameType(x),1)[0].m;return {k:'mc',cls:'two',word:x.w,prompt:`<span class="fw hl">${esc(x.w)}</span> bedeutet: <i>„${esc(m)}“</i>`,sub:'Stimmt das?',options:['Wahr','Falsch'],answer:t?'Wahr':'Falsch',explain:expl(x)};};
+const qSpell = x=>({k:'mc',word:x.w,prompt:'Welche Schreibweise ist richtig?',sub:`Bedeutung: <i>${esc(x.m)}</i>`,options:shuffle([x.w,...misspell(x)]),answer:x.w,explain:expl(x)});
+const qFindErr = x=>{const wrong=misspell(x)[0];const others=sample(W.filter(y=>y.w!==x.w),3).map(y=>y.w);return {k:'mc',word:x.w,prompt:'Welches Wort ist <b>falsch</b> geschrieben?',options:shuffle([wrong,...others]),answer:wrong,explain:`<b class="v">Richtig: ${esc(x.w)}</b>${esc(x.m)}`};};
+const qGap = (x,mode)=>({k:'type',word:x.w,big:gapify(x.w,mode),prompt:mode==='double'?'Einfach oder doppelt? Schreib das ganze Wort.':'Ergänze die fehlenden Buchstaben und schreib das ganze Wort.',sub:mode==='double'?`Jedes ◻ steht für einen oder zwei gleiche Buchstaben. Bedeutung: <i>${esc(x.m)}</i>`:`Bedeutung: <i>${esc(x.m)}</i>`,answer:x.w,alts:x.alts,explain:expl(x)});
+const qAnagram = x=>{let l=[...x.w.toLowerCase()];let s=l;for(let k=0;k<8;k++){s=shuffle(l);if(s.join('')!==l.join(''))break;}return {k:'type',word:x.w,letters:s,prompt:'Bring die Buchstaben in die richtige Reihenfolge.',sub:`Bedeutung: <i>${esc(x.m)}</i> · ${TYPE[x.t]}${x.t==='N'?' (großgeschrieben)':''}`,answer:x.w,alts:x.alts,explain:expl(x)};};
+const qDiktat = x=>({k:'type',word:x.w,tts:true,prompt:hasTTS?'Wort anhören und aufschreiben.':'Wort zu dieser Bedeutung aufschreiben.',sub:`Bedeutung: <i>${esc(x.m)}</i>`,answer:x.w,alts:x.alts,explain:expl(x)});
+const qCase = x=>({k:'mc',cls:'two',word:x.w,prompt:`Wie schreibt man <span class="fw">${esc(x.w.toLowerCase())}</span>?`,sub:`Bedeutung: <i>${esc(x.m)}</i>`,options:['Groß','klein'],answer:x.t==='N'?'Groß':'klein',explain:`<b class="v">${esc(x.w)}</b>${x.t==='N'?'Nomen schreibt man groß. Test: Man kann einen Artikel davorsetzen („'+esc(x.a)+' '+esc(x.w)+'“).':esc(TYPE[x.t])+'e schreibt man klein.'}`});
+const qTypeMeaning = x=>({k:'type',word:x.w,prompt:`Schreib das Fremdwort für: <i>„${esc(x.m)}“</i>`,sub:`${TYPE[x.t]} · ${x.w.length} Buchstaben`,answer:x.w,alts:x.alts,explain:expl(x)});
+const qArticle = x=>({k:'mc',cls:'three',word:x.w,prompt:`Welcher Artikel passt? <span class="fw hl">${esc(x.w)}</span>`,options:['der','die','das'],answer:x.a,explain:`<b class="v">${esc(x.a+' '+x.w)}</b>${esc(x.m)}`});
+const qWortart = x=>({k:'mc',cls:'three',word:x.w,prompt:`Welche Wortart ist <span class="fw hl">${esc(x.w)}</span>?`,options:['Nomen','Verb','Adjektiv'],answer:TYPE[x.t],explain:expl(x)+`<br>${x.t==='V'?'Verben auf <b>-ieren</b> schreibt man klein.':x.t==='A'?'Adjektive beschreiben, wie etwas ist.':'Nomen erkennst du am Artikel.'}`});
+const OTIP={gr:'Typisch griechisch: ph, th, rh, y, -ie, -logie, -grafie.',lat:'Typisch lateinisch: -tion, -ität, -iv, -ant/-ent, Vorsilben wie kon-, inter-, re-.',fr:'Typisch französisch: -eur, -age, -ee, -ette, -ieren, ch wie „sch“.',en:'Typisch englisch: Wörter aus Sport, Technik und Medien (-ness, oo, ea).'};
+const qOrigin = x=>({k:'mc',word:x.w,prompt:`Aus welcher Sprache kommt <span class="fw hl">${esc(x.w)}</span>?`,options:['Latein','Griechisch','Französisch','Englisch'],answer:ORIG[x.o],explain:expl(x)+`<br>${OTIP[x.o]}`});
+const qFamily = ([rel,base])=>{const x=BY[base];return {k:'mc',word:x.w,prompt:`Zu welchem Fremdwort gehört <span class="fw hl">${esc(rel)}</span>?`,sub:'Finde die Wortfamilie.',options:shuffle([x.w,...sample(W.filter(y=>y.w!==x.w),3).map(y=>y.w)]),answer:x.w,explain:`<b class="v">${esc(rel)} → ${esc(art(x)+x.w)}</b>${esc(x.m)}`};};
+const qGrammar = ([p,a])=>{const x=BY[a];return {k:'mc',word:x.w,prompt:esc(p),options:shuffle([a,...sample(GRAMMAR.filter(g=>g!==a),3)]),answer:a,explain:expl(x)};};
+const qFlash = x=>({k:'flash',word:x.w,x});
+
+/* ---------- Die 30 Aufgaben ---------- */
+const BLOCKS=[
+  {name:'Bedeutung verstehen',note:'Was heißt das Wort?',c:'--b1'},
+  {name:'Rechtschreibung',note:'Fremdwörter fehlerfrei schreiben',c:'--b2'},
+  {name:'Grammatik & Herkunft',note:'Artikel, Wortart, Sprache, Wortfamilie',c:'--b3'},
+  {name:'Profi-Training',note:'Wiederholen und Probearbeit',c:'--b4'}
+];
+const greek=W.filter(x=>/ph|th|rh|y/i.test(x.w));
+const french=W.filter(x=>x.o==='fr');
+const doubles=W.filter(x=>/([bcdfgklmnprstz])\1/.test(x.w));
+const nouns=W.filter(x=>x.t==='N'), verbs=W.filter(x=>x.t==='V');
+const withOrigin=W.filter(x=>x.o);
+const T=[
+  {b:0,t:'Was bedeutet das? A–D',d:'Bedeutung wählen, Wörter von A bis D',g:()=>sample(range('A','D'),12).map(qMeaning)},
+  {b:0,t:'Was bedeutet das? E–K',d:'Bedeutung wählen, Wörter von E bis K',g:()=>sample(range('E','K'),12).map(qMeaning)},
+  {b:0,t:'Was bedeutet das? L–Z',d:'Bedeutung wählen, Wörter von L bis Z',g:()=>sample(range('L','Z'),12).map(qMeaning)},
+  {b:0,t:'Welches Wort passt?',d:'Zur Bedeutung das Fremdwort finden',g:()=>sample(W,12).map(x=>qWord(x))},
+  {b:0,t:'Zuordnen A–H',d:'Wort und Bedeutung verbinden, 2 Runden',g:()=>{const s=sample(range('A','H'),12);return [{k:'match',items:s.slice(0,6)},{k:'match',items:s.slice(6,12)}];}},
+  {b:0,t:'Zuordnen I–Z',d:'Wort und Bedeutung verbinden, 2 Runden',g:()=>{const s=sample(range('I','Z'),12);return [{k:'match',items:s.slice(0,6)},{k:'match',items:s.slice(6,12)}];}},
+  {b:0,t:'Wahr oder falsch?',d:'Stimmt die Bedeutung?',g:()=>sample(W,14).map(qTF)},
+  {b:0,t:'Lückentext: Auswählen',d:'Das passende Wort in den Satz setzen',g:()=>sample(W,12).map(x=>qCloze(x))},
+  {b:0,t:'Lückentext: Selbst schreiben',d:'Wort in den Satz schreiben',g:()=>sample(W,10).map(qClozeType)},
+  {b:0,t:'Anspruchsvolle Wörter',d:'Die schwierigsten Wörter der Liste',g:()=>sample(HARD,12).map(w=>Math.random()<.5?qMeaning(BY[w]):qCloze(BY[w]))},
+  {b:1,t:'Richtig geschrieben?',d:'Die richtige Schreibweise erkennen',g:()=>sample(W,12).map(qSpell)},
+  {b:1,t:'Griechische Stolperfallen',d:'ph, th, rh und y richtig einsetzen',g:()=>sample(greek,10).map(x=>qGap(x))},
+  {b:1,t:'Französisch schreiben',d:'-eur, -age, -ee, ch: Wörter selbst schreiben',g:()=>sample(french,10).map(qTypeMeaning)},
+  {b:1,t:'Einfach oder doppelt?',d:'pp, rr, ss, tt … oder nur ein Buchstabe?',g:()=>sample(doubles,10).map(x=>qGap(x,'double'))},
+  {b:1,t:'Fehlende Buchstaben',d:'Lückenwörter ergänzen',g:()=>sample(W,12).map(x=>qGap(x))},
+  {b:1,t:'Buchstaben ordnen',d:'Vertauschte Buchstaben richtig ordnen',g:()=>sample(W,10).map(qAnagram)},
+  {b:1,t:'Fehlersuche',d:'Das falsch geschriebene Wort finden',g:()=>sample(W,12).map(qFindErr)},
+  {b:1,t:'Diktat',d:hasTTS?'Wort anhören und aufschreiben':'Wort zur Bedeutung aufschreiben',g:()=>sample(W,10).map(qDiktat)},
+  {b:1,t:'Groß oder klein?',d:'Nomen groß, Verben und Adjektive klein',g:()=>shuffle([...sample(nouns,7),...sample(W.filter(x=>x.t!=='N'),8)]).map(qCase)},
+  {b:1,t:'Schreib-Sprint',d:'15 Wörter zur Bedeutung schreiben',g:()=>sample(W,15).map(qTypeMeaning)},
+  {b:2,t:'Der, die oder das?',d:'Den richtigen Artikel wählen',g:()=>sample(nouns,15).map(qArticle)},
+  {b:2,t:'Wortart bestimmen',d:'Nomen, Verb oder Adjektiv?',g:()=>shuffle([...sample(nouns,5),...sample(verbs,5),...sample(W.filter(x=>x.t==='A'),5)]).map(qWortart)},
+  {b:2,t:'Woher kommt das Wort?',d:'Latein, Griechisch, Französisch, Englisch',g:()=>sample(withOrigin,12).map(qOrigin)},
+  {b:2,t:'Grammatik-Fremdwörter',d:'Partizip, Akkusativ, Konjunktion …',g:()=>shuffle(GRAMMAR_Q).map(qGrammar)},
+  {b:2,t:'Verben auf -ieren',d:'Das richtige Verb im Satz',g:()=>sample(verbs,10).map(x=>qCloze(x,verbs))},
+  {b:2,t:'Wortfamilien',d:'Verwandte Wörter zuordnen (aggressiv → Aggression)',g:()=>sample(FAMILY,12).map(qFamily)},
+  {b:3,t:'Karteikarten',d:'Selbst abfragen: gewusst oder nicht',g:()=>sample(W,15).map(qFlash)},
+  {b:3,t:'Schnellrunde: 60 Sekunden',d:'Möglichst viele Bedeutungen in einer Minute',timer:60,g:()=>sample(W,60).map(qMeaning)},
+  {b:3,t:'Fehlerwörter',d:'Nur die Wörter, die du falsch hattest',g:()=>{const p=Object.keys(S.stats).filter(w=>BY[w]&&isProb(w)).sort((a,b)=>(S.stats[b].w-S.stats[b].r)-(S.stats[a].w-S.stats[a].r)).slice(0,12);return p.map((w,i)=>i%2?qTypeMeaning(BY[w]):qMeaning(BY[w]));}},
+  {b:3,t:'Große Probearbeit',d:'20 gemischte Aufgaben mit Note',grade:true,g:()=>{const p=shuffle(W);let k=0;const n=()=>p[k++];const q=[];
+    for(let i=0;i<4;i++)q.push(qMeaning(n()));for(let i=0;i<3;i++)q.push(qWord(n()));for(let i=0;i<3;i++)q.push(qClozeType(n()));for(let i=0;i<3;i++)q.push(qSpell(n()));
+    q.push(qGap(n()));q.push(qTypeMeaning(n()));
+    sample(nouns.filter(x=>!q.some(y=>y.word===x.w)),2).forEach(x=>q.push(qArticle(x)));q.push(qCase(n()));sample(withOrigin.filter(x=>!q.some(y=>y.word===x.w)),2).forEach(x=>q.push(qOrigin(x)));
+    return q;}}
+].map((t,i)=>({...t,id:i+1}));
+
+function grade(p){return p>=92?'1':p>=81?'2':p>=67?'3':p>=50?'4':p>=30?'5':'6';}
+const starsOf=p=>p>=90?3:p>=75?2:p>=50?1:0;
+const starHTML=n=>'★'.repeat(n)+`<span class="off">${'★'.repeat(3-n)}</span>`;
+
+/* ---------- Ansichten ---------- */
+let view='tasks', Q=null, wfilter={q:'',o:'all'}, resetArm=false;
+
+function header(){
+  const done=T.filter(t=>(S.best[t.id]||0)>=50).length;
+  const tried=T.filter(t=>S.best[t.id]!=null);const avg=tried.length?Math.round(tried.reduce((a,t)=>a+S.best[t.id],0)/tried.length):0;
+  const sure=W.filter(x=>isSure(x.w)).length;
+  return `<header class="top">
+    <div class="kicker">Deutsch, Klasse 7 · ${W.length} Fremdwörter</div>
+    <h1>Fremdwörter-Trainer</h1>
+    <div class="stats">
+      <div class="stat"><b>${done}/30</b><span>Aufgaben bestanden</span></div>
+      <div class="stat"><b>${tried.length?avg+' %':'–'}</b><span>Ø Bestwert</span></div>
+      <div class="stat"><b>${sure}/${W.length}</b><span>Wörter sicher</span></div>
+    </div>
+    <div class="bar" aria-label="Gesamtfortschritt"><i style="width:${Math.round(done/30*100)}%"></i></div>
+  </header>
+  <nav class="tabs" role="tablist">
+    ${[['tasks','Aufgaben'],['words','Wortliste'],['tips','Lerntipps']].map(([k,l])=>`<button role="tab" aria-selected="${view===k}" data-view="${k}">${l}</button>`).join('')}
+  </nav>`;
+}
+function render(){
+  const app=$('#app');
+  if(Q){ renderQuiz(); return; }
+  let h=header();
+  if(view==='tasks'){
+    const nxt=T.find(t=>(S.best[t.id]||0)<50);
+    h+= nxt?`<div class="next"><div><div class="hint">Nächste offene Aufgabe</div><h3>Aufgabe ${nxt.id}: ${esc(nxt.t)}</h3></div><button class="btn" data-start="${nxt.id}">Starten</button></div>`
+           :`<div class="next"><div><div class="hint">Alle 30 Aufgaben bestanden</div><h3>Zur Kontrolle: Probearbeit wiederholen.</h3></div><button class="btn" data-start="30">Probearbeit</button></div>`;
+    BLOCKS.forEach((b,bi)=>{
+      h+=`<section class="block" style="--c:var(${b.c})"><div class="block-h"><h2>${bi+1}. ${b.name}</h2><p>${b.note}</p></div><div class="grid">`;
+      T.filter(t=>t.b===bi).forEach(t=>{const best=S.best[t.id];const st=best==null?0:starsOf(best);
+        const ok=best>=50;
+        h+=`<button class="tile ${ok?'done':''}" data-start="${t.id}" aria-label="Aufgabe ${t.id}: ${esc(t.t)}${ok?', bestanden':''}"><span class="no">${ok?CHECK:t.id}</span><span class="t">${ok?t.id+'. ':''}${esc(t.t)}</span><span class="d">${esc(t.d)}</span><span class="st">${best==null?'':ok?'✓ Bestanden · Bestwert '+best+' %':'Nicht bestanden · Bestwert '+best+' % (ab 50 % bestanden)'}</span></button>`;});
+      h+=`</div></section>`;
+    });
+  } else if(view==='words'){
+    h+=`<div class="filters"><input id="wsearch" type="search" placeholder="Wort oder Bedeutung suchen" value="${esc(wfilter.q)}" aria-label="Suchen">
+      ${[['all','Alle'],['prob','Fehlerwörter'],['lat','Latein'],['gr','Griechisch'],['fr','Französisch'],['en','Englisch']].map(([k,l])=>`<button data-of="${k}" aria-pressed="${wfilter.o===k}">${l}</button>`).join('')}</div>
+      <div class="words" id="wlist"></div>`;
+  } else {
+    h+=tipsHTML();
+  }
+  h+=`<footer><span>Fortschritt wird nur in diesem Browser gespeichert.</span><button class="btn ghost small" id="reset">${resetArm?'Wirklich alles löschen?':'Fortschritt zurücksetzen'}</button></footer>`;
+  app.innerHTML=h;
+  if(view==='words') renderWords();
+}
+function renderWords(){
+  const q=wfilter.q.trim().toLowerCase();
+  const list=W.filter(x=>(wfilter.o==='all'||(wfilter.o==='prob'?isProb(x.w):x.o===wfilter.o))&&(!q||x.w.toLowerCase().includes(q)||x.m.toLowerCase().includes(q)));
+  $('#wlist').innerHTML=list.length?list.map(x=>`<div class="wrow"><div class="w">${esc(x.w)} <small>${x.a?esc(x.a)+' · ':''}${TYPE[x.t]}${x.o?' · '+ORIG[x.o]:''}</small>${isProb(x.w)?'<span class="dot prob" title="Fehlerwort"></span>':isSure(x.w)?'<span class="dot sure" title="sicher"></span>':''}</div><div class="m">${esc(x.m)}</div><div class="act">${hasTTS?`<button class="iconbtn" data-say="${esc(x.w)}" aria-label="${esc(x.w)} anhören">${SPK}</button>`:''}</div></div>`).join(''):'<p class="muted">Keine Wörter gefunden.</p>';
+}
+function tipsHTML(){
+  return `<div class="tips">
+  <div class="tip"><h3>Lernplan für 5 Tage</h3><ul>
+    <li><b>Tag 1:</b> Aufgaben 1–6 (Bedeutungen kennenlernen)</li>
+    <li><b>Tag 2:</b> Aufgaben 7–10 und 21–26 (Sätze, Grammatik, Herkunft)</li>
+    <li><b>Tag 3:</b> Aufgaben 11–20 (Rechtschreibung)</li>
+    <li><b>Tag 4:</b> Aufgabe 29 (Fehlerwörter) und 27 (Karteikarten)</li>
+    <li><b>Tag 5:</b> Aufgabe 30 (Probearbeit) mehrmals, bis das Ergebnis stabil bei Note 1–2 liegt</li></ul></div>
+  <div class="tip"><h3>Griechische Wörter</h3><p>Man hört „f“, „t“, „r“ oder „ü“, schreibt aber <b>ph</b>, <b>th</b>, <b>rh</b> und <b>y</b>: Philosophie, Strophe, Theater, Rhythmus, Hygiene, Mythos, Labyrinth.</p></div>
+  <div class="tip"><h3>Französische Wörter</h3><ul>
+    <li><b>-eur</b> spricht man „ör“: Chauffeur, Ingenieur, Regisseur, Kommandeur</li>
+    <li><b>-age</b> spricht man „asche“: Etage, Engagement („angaschmã“)</li>
+    <li><b>ch</b> spricht man „sch“: Chauffeur, recherchieren, echauffieren</li>
+    <li><b>-ee</b> spricht man langes „e“: Tournee, Idee · <b>-eau</b> wie „o“: Niveau · <b>ai</b> wie „ä“: Saison</li>
+    <li><b>-aille</b> spricht man „alje“: Medaille · <b>-ette</b>: Baguette</li></ul></div>
+  <div class="tip"><h3>Doppelte Buchstaben</h3><p>Präge dir die Doppelten ein: A<b>gg</b>ression, A<b>pp</b>arat, A<b>pp</b>etit, A<b>pp</b>laus, A<b>rr</b>oganz, A<b>tt</b>raktion, Deba<b>tt</b>e, Ka<b>rr</b>iere, Karu<b>ss</b>e<b>ll</b> (ein r, zwei s, zwei l!), Ko<b>mm</b>andeur, Konku<b>rr</b>enz, Inte<b>r</b>e<b>ss</b>e.</p></div>
+  <div class="tip"><h3>Groß oder klein?</h3><p>Nomen haben einen Artikel und werden großgeschrieben (die Euphorie). Verben auf <b>-ieren</b> und Adjektive schreibt man klein: blamieren, recherchieren, fragil, resolut.</p></div>
+  <div class="tip"><h3>Wortbestandteile helfen beim Merken</h3><ul>
+    <li><b>ambi-</b> = beide: <b>ambivalent</b> (zwei gegensätzliche Gefühle)</li>
+    <li><b>ante-/anti-</b> = vorher: <b>antizipieren</b> (vorwegnehmen)</li>
+    <li><b>re-</b> = wieder, zurück: <b>rekapitulieren</b> (wiederholen)</li>
+    <li><b>Rudiment</b> = Überrest: <b>rudimentär</b> (nur in Ansätzen)</li>
+    <li><b>Phlegma</b> = Trägheit: <b>phlegmatisch</b> (träge)</li></ul></div>
+  </div>`;
+}
+
+/* ---------- Quiz ---------- */
+function startTask(id){
+  const t=T.find(x=>x.id===id); const qs=t.g();
+  Q={t,qs,i:0,points:0,max:0,wrong:[],done:false,end:t.timer?Date.now()+t.timer*1000:0,state:null};
+  window.scrollTo(0,0); render();
+  if(t.timer){ clearInterval(Q.tick); Q.tick=setInterval(()=>{ if(!Q) return; const r=Math.max(0,Math.ceil((Q.end-Date.now())/1000)); const el=$('#timer'); if(el){el.textContent=r+' s'; el.classList.toggle('low',r<=10);} if(r<=0){clearInterval(Q.tick); finish();} },250); }
+}
+function quizShell(inner){
+  const t=Q.t, n=Q.qs.length;
+  const prog=t.timer?'':`<div class="qmeta"><span>Frage ${Q.i+1} von ${n}</span><span>${Q.points} Punkte</span></div><div class="bar"><i style="width:${Math.round(Q.i/n*100)}%"></i></div>`;
+  return `<div class="qhead"><button class="btn ghost small" id="quit">← Übersicht</button><div class="grow"><div class="hint">Aufgabe ${t.id}</div><h2>${esc(t.t)}</h2></div>${t.timer?`<div class="timer" id="timer">${t.timer} s</div>`:''}</div>
+    ${t.timer?`<div class="qmeta"><span>${Q.points} richtig</span><span>${Q.max} beantwortet</span></div>`:prog}
+    <div class="card" style="margin-top:12px">${inner}</div>`;
+}
+function renderQuiz(){
+  const app=$('#app');
+  if(Q.done){ app.innerHTML=resultHTML(); return; }
+  if(!Q.qs.length){ app.innerHTML=quizShell(`<p class="prompt">Du hast noch keine Fehlerwörter.</p><p class="muted">Mach zuerst ein paar andere Aufgaben. Jedes Wort, das du falsch beantwortest, landet automatisch hier.</p><div class="row end"><button class="btn" id="quit2">Zur Übersicht</button></div>`); return; }
+  const q=Q.qs[Q.i]; Q.state={answered:false};
+  let h='';
+  if(q.k==='mc'){
+    h=`<div class="prompt">${q.prompt}</div>${q.sub?`<div class="hint">${q.sub}</div>`:''}
+      <div class="opts ${q.cls||''}">${q.options.map((o,i)=>`<button class="opt" data-opt="${i}">${esc(o)}</button>`).join('')}</div><div id="fb"></div>`;
+  } else if(q.k==='type'){
+    h=`<div class="prompt">${q.prompt}</div>
+      ${q.big?`<div class="gapword">${esc(q.big)}</div>`:''}
+      ${q.letters?`<div class="tiles">${q.letters.map(l=>`<span>${esc(l)}</span>`).join('')}</div>`:''}
+      ${q.tts&&hasTTS?`<div><button class="btn ghost speak" id="say">${SPK} Nochmal anhören</button></div>`:''}
+      ${q.sub?`<div class="hint">${q.sub}</div>`:''}
+      <form class="typebox" id="tform" autocomplete="off"><input id="tin" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Deine Antwort" placeholder="Deine Antwort"><button class="btn" type="submit" id="tsub">Prüfen</button></form>
+      <div class="row"><button class="btn ghost small" id="tip">Tipp: erster Buchstabe</button></div><div id="fb"></div>`;
+  } else if(q.k==='match'){
+    Q.state={sel:null,matched:0,miss:new Set()};
+    const L=shuffle(q.items), R=shuffle(q.items);
+    h=`<div class="prompt">Tippe ein Wort an und dann die passende Bedeutung.</div>
+      <div class="match"><div class="col">${L.map(x=>`<button class="opt" data-ml="${esc(x.w)}">${esc(x.w)}</button>`).join('')}</div>
+      <div class="col">${R.map(x=>`<button class="opt" data-mr="${esc(x.w)}">${esc(x.m)}</button>`).join('')}</div></div><div id="fb"></div>`;
+  } else if(q.k==='flash'){
+    const x=q.x;
+    h=`<div class="flash" id="fcard"><div class="big">${esc(x.w)}</div><div class="hint">Bedeutung überlegen, dann umdrehen.</div></div>
+      <div class="row end" id="fbtns">${hasTTS?`<button class="btn ghost speak" data-say="${esc(x.w)}">${SPK} Anhören</button>`:''}<button class="btn" id="flip">Umdrehen</button></div>`;
+  }
+  app.innerHTML=quizShell(h);
+  if(q.k==='type'){ const i=$('#tin'); if(i) i.focus({preventScroll:true}); if(q.tts) speak(q.word); }
+}
+function feedback(ok,html,extra){
+  const fb=$('#fb'); const last=Q.t.timer?false:Q.i===Q.qs.length-1;
+  fb.innerHTML=`<div class="feedback ${ok?'ok':'no'}">${extra?`<div style="margin-bottom:6px"><b>${extra}</b></div>`:''}${html}</div>
+    <div class="row end" style="margin-top:12px">${hasTTS?`<button class="btn ghost speak small" data-say="${esc(Q.qs[Q.i].word||'')}">${SPK}</button>`:''}<button class="btn" id="next">${last?'Ergebnis ansehen':'Weiter'}</button></div>`;
+  const n=$('#next'); if(n) n.focus({preventScroll:true});
+}
+function answerMC(idx){
+  const q=Q.qs[Q.i]; if(Q.state.answered) return; Q.state.answered=true;
+  const choice=q.options[idx], ok=choice===q.answer;
+  document.querySelectorAll('[data-opt]').forEach(b=>{b.disabled=true;const o=q.options[+b.dataset.opt];if(o===q.answer)b.classList.add('ok');else if(+b.dataset.opt===idx)b.classList.add('no');});
+  Q.max++; if(ok)Q.points++; else Q.wrong.push(q.word); track(q.word,ok); save();
+  if(Q.t.timer){ setTimeout(()=>{ if(Q&&!Q.done) next(); }, ok?350:1100); if(!ok) feedbackMini(q); return; }
+  feedback(ok,q.explain,ok?'Richtig.':'Falsch.');
+}
+function feedbackMini(q){ const fb=$('#fb'); if(fb) fb.innerHTML=`<div class="feedback no">${q.explain}</div>`; }
+function answerType(){
+  const q=Q.qs[Q.i]; if(Q.state.answered) return;
+  const inp=$('#tin'); const v=inp.value.trim().replace(/\s+/g,' ');
+  if(!v){ inp.focus(); return; }
+  Q.state.answered=true;
+  const good=[q.answer,...(q.alts||[])]; const ok=good.includes(v);
+  const caseOnly=!ok&&good.some(g=>g.toLowerCase()===v.toLowerCase());
+  inp.classList.add(ok?'ok':'no'); inp.readOnly=true; $('#tsub').disabled=true; const tb=$('#tip'); if(tb) tb.disabled=true;
+  Q.max++; if(ok)Q.points++; else Q.wrong.push(q.word); track(q.word,ok); save();
+  let msg= ok?'Richtig.':caseOnly?`Groß-/Kleinschreibung beachten: <span class="fw">${esc(q.answer)}</span>`:`Falsch. Deine Eingabe: „${esc(v)}“. Richtig: <span class="fw">${esc(q.answer)}</span>`;
+  if(ok&&q.alts&&q.alts.length) msg+=` (auch erlaubt: ${esc([q.answer,...q.alts].filter(a=>a!==v).join(', '))})`;
+  feedback(ok,q.explain,msg);
+}
+function matchClick(side,w,btn){
+  const q=Q.qs[Q.i], st=Q.state; if(btn.disabled) return;
+  if(side==='l'){ document.querySelectorAll('[data-ml]').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); st.sel=w; return; }
+  if(!st.sel){ return; }
+  const lb=document.querySelector(`[data-ml="${CSS.escape(st.sel)}"]`);
+  if(w===st.sel){
+    lb.classList.remove('sel'); lb.classList.add('ok'); btn.classList.add('ok'); lb.disabled=btn.disabled=true; st.matched++;
+    track(w,!st.miss.has(w)); st.sel=null;
+    if(st.matched===q.items.length){
+      const pts=q.items.filter(x=>!st.miss.has(x.w)).length; Q.max+=q.items.length; Q.points+=pts; q.items.forEach(x=>{if(st.miss.has(x.w))Q.wrong.push(x.w);}); save();
+      feedback(pts===q.items.length, `${pts} von ${q.items.length} Paaren beim ersten Versuch richtig.`, pts===q.items.length?'Alle Paare richtig.':'Runde beendet.');
+    }
+  } else {
+    st.miss.add(st.sel); btn.classList.add('no'); setTimeout(()=>btn.classList.remove('no'),500);
+  }
+}
+function flip(){
+  const q=Q.qs[Q.i], x=q.x;
+  $('#fcard').innerHTML=`<div class="big" style="font-size:26px">${esc(art(x)+x.w)}</div><div style="font-size:18px;font-weight:700">${esc(x.m)}</div><div class="hint"><i>${esc(x.s.replace('~',x.w))}</i></div>${x.o?`<span class="chip">${ORIG[x.o]}</span>`:''}`;
+  $('#fbtns').innerHTML=`<button class="btn ghost" data-know="0">Nicht gewusst</button><button class="btn" data-know="1">Gewusst</button>`;
+}
+function know(ok){ const q=Q.qs[Q.i]; Q.max++; if(ok)Q.points++; else Q.wrong.push(q.word); track(q.word,ok); save(); next(); }
+function next(){ if(!Q) return; if(Q.i<Q.qs.length-1){Q.i++; renderQuiz(); window.scrollTo({top:0});} else finish(); }
+function finish(){
+  if(!Q||Q.done) return; clearInterval(Q.tick); Q.done=true;
+  const pct=Q.max?Math.round(Q.points/Q.max*100):0; Q.pct=pct;
+  if(Q.t.timer){ // Blitzrunde: Wertung nach Anzahl richtiger Antworten (20 richtige = 100 %)
+    Q.pct=Math.min(100,Math.round(Q.points/20*100)); }
+  const prev=S.best[Q.t.id]; Q.prev=prev;
+  if(Q.max>0 && (prev==null||Q.pct>prev)) S.best[Q.t.id]=Q.pct;
+  save(); renderQuiz(); window.scrollTo({top:0});
+}
+function resultHTML(){
+  const t=Q.t, p=Q.pct, st=starsOf(p);
+  const wrong=[...new Set(Q.wrong)].map(w=>BY[w]).filter(Boolean);
+  const msg=p>=90?'Sehr sicher.':p>=75?'Gut. Die Wörter unten noch einmal wiederholen.':p>=50?'Bestanden. Die Wörter unten gezielt wiederholen.':'Noch nicht sicher. Wörter unten wiederholen und Aufgabe erneut machen.';
+  const improved=Q.prev!=null&&p>Q.prev?`<div class="hint">Neuer Bestwert (vorher ${Q.prev} %)</div>`:'';
+  return `<div class="qhead"><button class="btn ghost small" id="quit">← Übersicht</button><div class="grow"><div class="hint">Aufgabe ${t.id}</div><h2>${esc(t.t)}</h2></div></div>
+  <div class="card result">
+    ${t.timer?`<div class="pct">${Q.points}</div><div class="hint">richtige Antworten in 60 Sekunden (Ziel: 20)</div>`:`<div class="pct">${p} %</div><div class="hint">${Q.points} von ${Q.max} Punkten</div>`}
+        <div class="grade" style="${p>=50?'color:var(--good);border-color:var(--good);background:var(--good-bg)':''}">${p>=50?'✓ Bestanden':'Nicht bestanden (ab 50 %)'}${t.grade?' · Note '+grade(p):''}</div>
+    ${improved}
+    <p style="margin:0;font-weight:500">${msg}</p>
+    ${wrong.length?`<div class="wronglist"><h3>Wiederholen</h3>${wrong.map(x=>`<div><b>${esc(art(x)+x.w)}</b>: ${esc(x.m)}</div>`).join('')}</div>`:''}
+    <div class="row" style="justify-content:center;margin-top:6px"><button class="btn ghost" id="again">Nochmal</button>${t.id<30?`<button class="btn" data-start="${t.id+1}">Nächste Aufgabe</button>`:`<button class="btn" id="quit3">Zur Übersicht</button>`}</div>
+  </div>`;
+}
+function quit(){ if(Q){clearInterval(Q.tick);} Q=null; if(hasTTS)try{speechSynthesis.cancel();}catch(e){} render(); window.scrollTo({top:0}); }
+
+/* ---------- Ereignisse ---------- */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.say!=null){ speak(b.dataset.say); return; }
+  if(b.dataset.start){ const id=+b.dataset.start; if(Q){clearInterval(Q.tick);Q=null;} startTask(id); return; }
+  if(b.dataset.view){ view=b.dataset.view; resetArm=false; render(); return; }
+  if(b.dataset.of){ wfilter.o=b.dataset.of; document.querySelectorAll('[data-of]').forEach(x=>x.setAttribute('aria-pressed',x===b)); renderWords(); return; }
+  if(b.id==='reset'){ if(!resetArm){resetArm=true; render();} else { S={best:{},stats:{}}; save(); resetArm=false; render(); } return; }
+  if(b.id==='quit'||b.id==='quit2'||b.id==='quit3'){ quit(); return; }
+  if(b.id==='again'){ startTask(Q.t.id); return; }
+  if(b.id==='next'){ next(); return; }
+  if(b.id==='say'){ speak(Q.qs[Q.i].word); const i=$('#tin'); if(i)i.focus({preventScroll:true}); return; }
+  if(b.id==='tip'){ const q=Q.qs[Q.i]; const i=$('#tin'); if(!i.value.startsWith(q.answer[0])) i.value=q.answer[0]+i.value.replace(/^./,''); if(!i.value) i.value=q.answer[0]; b.disabled=true; b.textContent=`Beginnt mit „${q.answer[0]}“ · ${q.answer.length} Buchstaben`; i.focus(); return; }
+  if(b.dataset.opt!=null){ answerMC(+b.dataset.opt); return; }
+  if(b.dataset.ml!=null){ matchClick('l',b.dataset.ml,b); return; }
+  if(b.dataset.mr!=null){ matchClick('r',b.dataset.mr,b); return; }
+  if(b.id==='flip'){ flip(); return; }
+  if(b.dataset.know!=null){ know(b.dataset.know==='1'); return; }
+});
+document.addEventListener('submit',e=>{ if(e.target.id==='tform'){ e.preventDefault(); answerType(); } });
+document.addEventListener('input',e=>{ if(e.target.id==='wsearch'){ wfilter.q=e.target.value; renderWords(); } });
+document.addEventListener('keydown',e=>{
+  if(!Q||Q.done) return;
+  if(e.key==='Enter'&&Q.state&&Q.state.answered&&e.target.id!=='next'){ const n=$('#next'); if(n){e.preventDefault(); n.click();} }
+  const q=Q.qs[Q.i];
+  if(q&&q.k==='mc'&&!Q.state.answered&&/^[1-4]$/.test(e.key)&&e.target.tagName!=='INPUT'){ const i=+e.key-1; if(i<q.options.length) answerMC(i); }
+});
+render();
+</script>
+</body>
+</html>
